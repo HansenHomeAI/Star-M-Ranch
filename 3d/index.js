@@ -7389,8 +7389,8 @@ function normalizeBundleUrl(rawValue, options = {}) {
 // lib/canyon-vista/canyonVistaConfig.ts
 var CANYON_VISTA_HOLES = [
   {
-    id: "horsetail",
-    label: "Horsetail",
+    id: "meadow-lane",
+    label: "Meadow Lane",
     bundleUrl: DEFAULT_SOGS_BUNDLE_URL
   }
 ];
@@ -8058,8 +8058,8 @@ function CanyonDetailsPanel({ open, onClose }) {
                 children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("img", { src: fullscreen ? MINIMIZE_ICON : FULLSCREEN_ICON, alt: "", draggable: false, width: 21, height: 21 })
               }
             ),
-            /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("h1", { id: "canyon-details-heading", children: "Horsetail" }),
-            /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("p", { children: "Interactive SOGS / SuperSplat viewer for the Horsetail compressed bundle." })
+            /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("h1", { id: "canyon-details-heading", children: "Meadow Lane" }),
+            /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("p", { children: "Interactive SOGS / SuperSplat viewer for the Meadow Lane compressed bundle." })
           ] })
         }
       )
@@ -15152,7 +15152,7 @@ function SogsMigratedViewer({
     return () => panel.removeEventListener("wheel", onWheel, { capture: true });
   }, [developerToolsEnabled]);
   return /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("main", { className: "sogs-migrated-root", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("h1", { className: "sogs-migrated-sr-only", children: "Horsetail" }),
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("h1", { className: "sogs-migrated-sr-only", children: "Meadow Lane" }),
     /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { ref: containerRef, className: "sogs-migrated-stage", children: [
       viewerSrc ? /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(
         "iframe",
@@ -15854,6 +15854,6 @@ function SogsMigratedViewer({
 var import_jsx_runtime12 = __toESM(require_jsx_runtime(), 1);
 var mountNode = document.getElementById("root");
 if (!mountNode) {
-  throw new Error("Missing #root mount for Horsetail Viewer.");
+  throw new Error("Missing #root mount for Meadow Ln Viewer.");
 }
 (0, import_client.createRoot)(mountNode).render(/* @__PURE__ */ (0, import_jsx_runtime12.jsx)(SogsMigratedViewer, {}));
