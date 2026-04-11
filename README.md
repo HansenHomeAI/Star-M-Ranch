@@ -9,7 +9,7 @@ npm install
 npm run dev
 ```
 
-The Vite dev server serves the repo root on **port 5173** (`--strictPort`), and `/` redirects to `/3d/`.
+The Vite dev server serves the repo root (default **5173**; if that port is busy, Vite uses the next free one—check the terminal for the URL). `/` redirects to `/3d/`.
 
 Developer tools in the shell (splat position/rotation helpers) are **on by default**. Add `?dev=0` to the URL to hide them.
 
@@ -29,7 +29,7 @@ The iframe loads **`background_skybox.webp` in the same directory** as `meta.jso
 
 ### Staging bucket
 
-The bucket policy allows public **`GetObject`** on `compressed/*`. Bundle objects use **SSE-S3 (AES256)** so browsers can read them without SigV4. **CORS** includes common dev origins (e.g. `http://localhost:5173`) so `npm run dev` can fetch the bundle directly.
+The bucket policy allows public **`GetObject`** on `compressed/*`. Bundle objects use **SSE-S3 (AES256)** so browsers can read them without SigV4. **CORS** includes common dev localhost origins (including alternate ports when 5173 is taken) so `npm run dev` can fetch the bundle directly.
 
 Direct object URIs (for tools / AWS CLI):
 
