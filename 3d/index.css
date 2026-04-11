@@ -869,7 +869,10 @@
   line-height: 1.5;
   letter-spacing: 0.2px;
   color: rgba(255, 255, 255, 0.9);
-  margin-bottom: 100px;
+  margin-bottom: 1.15em;
+}
+.details-content p:last-child {
+  margin-bottom: 2.5rem;
 }
 .details-fullscreen-button {
   position: absolute;

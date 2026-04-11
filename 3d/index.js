@@ -7389,8 +7389,8 @@ function normalizeBundleUrl(rawValue, options = {}) {
 // lib/canyon-vista/canyonVistaConfig.ts
 var CANYON_VISTA_HOLES = [
   {
-    id: "meadow-lane",
-    label: "Meadow Lane",
+    id: "incognito",
+    label: "Incognito",
     bundleUrl: DEFAULT_SOGS_BUNDLE_URL
   }
 ];
@@ -8061,8 +8061,11 @@ function CanyonDetailsPanel({ open, onClose }) {
                 children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("img", { src: fullscreen ? MINIMIZE_ICON : FULLSCREEN_ICON, alt: "", draggable: false, width: 21, height: 21 })
               }
             ),
-            /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("h1", { id: "canyon-details-heading", children: "Meadow Lane" }),
-            /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("p", { children: "Interactive SOGS / SuperSplat viewer for the Meadow Lane compressed bundle." })
+            /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("h1", { id: "canyon-details-heading", children: "Incognito" }),
+            /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("p", { children: "Tucked into nearly 30 acres beneath the Bridger Mountains, Incognito is a private Bozeman estate that blends the warmth of a refined lodge with the scale and flexibility of a modern ranch property. It is secluded without feeling remote—composed to support both solitude and gathering." }),
+            /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("p", { children: "The residence carries a strong sense of atmosphere: generous interior volume, natural materials, and a layout that feels equally suited to quiet retreat, creative work, and long-form hosting. An attached studio and guest apartment expand the property beyond a single-home experience, giving it a layered, adaptable character." }),
+            /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("p", { children: "Across the grounds, the estate reads as both polished and usable. The setting, views, and open land give the property its privacy, while the architecture and updated interiors keep it elevated and intentional rather than rustic for its own sake." }),
+            /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("p", { children: "Incognito is less about display than control—a hidden, fully formed retreat with presence, flexibility, and a distinctly Montana sense of distance." })
           ] })
         }
       )
@@ -15158,7 +15161,7 @@ function SogsMigratedViewer({
     return () => panel.removeEventListener("wheel", onWheel, { capture: true });
   }, [developerToolsEnabled]);
   return /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("main", { className: "sogs-migrated-root", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("h1", { className: "sogs-migrated-sr-only", children: "Meadow Lane" }),
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("h1", { className: "sogs-migrated-sr-only", children: "Incognito" }),
     /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { ref: containerRef, className: "sogs-migrated-stage", children: [
       viewerSrc ? /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(
         "iframe",
@@ -15860,6 +15863,6 @@ function SogsMigratedViewer({
 var import_jsx_runtime12 = __toESM(require_jsx_runtime(), 1);
 var mountNode = document.getElementById("root");
 if (!mountNode) {
-  throw new Error("Missing #root mount for Meadow Ln Viewer.");
+  throw new Error("Missing #root mount for Incognito.");
 }
 (0, import_client.createRoot)(mountNode).render(/* @__PURE__ */ (0, import_jsx_runtime12.jsx)(SogsMigratedViewer, {}));
