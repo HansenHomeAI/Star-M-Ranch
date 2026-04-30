@@ -16,7 +16,8 @@ const tmpFocus = new Vec3();
 const AXIS_LEN = 10;
 /** Cylinder radius (÷10 vs prior 0.05 for skinnier rods). */
 const AXIS_RADIUS = 0.005;
-const LOT_LINE_RADIUS = 0.0035;
+const LOT_LINE_RADIUS = 0.006;
+const LOT_LINE_Y_OFFSET = 0.08;
 const MAIN_BOOT_TIMEOUT_MS = 60e3;
 const BRIDGE_WAIT_TIMEOUT_MS = 60e3;
 /**
@@ -454,7 +455,7 @@ function destroySogsLotLines() {
   window.__sogsLotLinesRoot = null;
 }
 
-function setupSogsLotLines(app, gsplatEntity) {
+function setupSogsLotLines(app) {
   destroySogsLotLines();
   const dots = Array.isArray(window.__sogsLotLineDots) ? window.__sogsLotLineDots : [];
   const lines = Array.isArray(window.__sogsLotLineSegments) ? window.__sogsLotLineSegments : [];
@@ -470,14 +471,14 @@ function setupSogsLotLines(app, gsplatEntity) {
     const y = Number(p.y);
     const z = Number(p.z);
     if (Number.isFinite(x) && Number.isFinite(y) && Number.isFinite(z)) {
-      byName.set(dot.name, new Vec3(x, y, z));
+      byName.set(dot.name, new Vec3(x, y + LOT_LINE_Y_OFFSET, z));
     }
   }
 
   const mesh = buildUnitCylinderMesh(app);
   const mat = lotLineMaterial();
   const root = new Entity("sogsLotLines", app);
-  gsplatEntity.addChild(root);
+  app.root.addChild(root);
 
   for (const seg of lines) {
     const a = byName.get(seg?.start);
@@ -511,7 +512,7 @@ function syncSogsLotLines(app) {
   if (!g) {
     return;
   }
-  setupSogsLotLines(app, g);
+  setupSogsLotLines(app);
   app.renderNextFrame = true;
 }
 
