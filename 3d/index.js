@@ -7558,7 +7558,6 @@ var CANYON_VISTA_BORDER_LINES = [
 var CANYON_VISTA_SOLD_HOTSPOTS = [
   { text: "SOLD", position: { x: 0.22, y: 0.5, z: -0.85 }, scale: 0.2, verticalOffset: 0.06 }
 ];
-var CANYON_VISTA_LOT_LINE_Y_OFFSET = 0.08;
 function computeNorthFacingPosition(current, orbitTarget, northDirectionDeg) {
   const dx = current.x - orbitTarget.x;
   const dz = current.z - orbitTarget.z;
@@ -14180,8 +14179,7 @@ function screenToWorldOnPlane(screenX, screenY, pointOnPlane, planeNormal, cam, 
 }
 // components/sogs-migrated-viewer/LotLinesOverlay.tsx
 var import_jsx_runtime7 = __toESM(require_jsx_runtime(), 1);
-function LotLinesOverlay({ enabled, poseRef, containerRef, borderDots = CANYON_VISTA_BORDER_DOTS, editable = false, selectedPointName = "", onPointMove, onPointSelect }) {
-  const cameraRef = (0, import_react5.useRef)(createOverlayPerspectiveCamera());
+function LotLinesOverlay({ enabled, iframeRef, containerRef, borderDots = CANYON_VISTA_BORDER_DOTS, editable = false, selectedPointName = "", onPointMove, onPointSelect }) {
   const dragPointRef = (0, import_react5.useRef)(null);
   const [pack, setPack] = (0, import_react5.useState)({ w: 0, h: 0, points: [] });
   (0, import_react5.useEffect)(() => {
@@ -14192,15 +14190,13 @@ function LotLinesOverlay({ enabled, poseRef, containerRef, borderDots = CANYON_V
     let raf = 0;
     const tick = () => {
       const el = containerRef.current;
-      const pose = poseRef.current;
-      if (el && pose) {
+      const projectLotLinePoint = iframeRef.current?.contentWindow?.__sogsProjectLotLinePoint;
+      if (el && typeof projectLotLinePoint === "function") {
         const w = el.clientWidth;
         const h = el.clientHeight;
-        const cam = cameraRef.current;
-        syncOverlayCamera(cam, pose, w, h);
         const points = borderDots.map((dot) => {
-          const p = projectWorldToScreen({ x: dot.position.x, y: dot.position.y + CANYON_VISTA_LOT_LINE_Y_OFFSET, z: dot.position.z }, cam, w, h);
-          return { name: dot.name, x: p.x, y: p.y, visible: p.visible };
+          const p = projectLotLinePoint(dot.position);
+          return { name: dot.name, x: Number(p?.x) || 0, y: Number(p?.y) || 0, visible: p?.visible === true };
         });
         setPack({ w, h, points });
       }
@@ -14208,7 +14204,7 @@ function LotLinesOverlay({ enabled, poseRef, containerRef, borderDots = CANYON_V
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [enabled, editable, poseRef, containerRef, borderDots]);
+  }, [enabled, editable, iframeRef, containerRef, borderDots]);
   if (!enabled || !editable || pack.w <= 0 || pack.h <= 0) {
     return null;
   }
@@ -14217,10 +14213,10 @@ function LotLinesOverlay({ enabled, poseRef, containerRef, borderDots = CANYON_V
     if (!editable || !name || !onPointMove) return;
     const dot = borderDots.find((d) => d.name === name);
     const el = event.currentTarget;
-    const pose = poseRef.current;
-    if (!dot || !el || !pose) return;
+    const screenToLotLinePoint = iframeRef.current?.contentWindow?.__sogsScreenToLotLinePoint;
+    if (!dot || !el || typeof screenToLotLinePoint !== "function") return;
     const r = el.getBoundingClientRect();
-    const world = screenToWorldOnY(event.clientX - r.left, event.clientY - r.top, dot.position.y + CANYON_VISTA_LOT_LINE_Y_OFFSET, cameraRef.current, pack.w, pack.h);
+    const world = screenToLotLinePoint(event.clientX - r.left, event.clientY - r.top, dot.position.y);
     if (!world) return;
     event.preventDefault();
     event.stopPropagation();
@@ -14248,6 +14244,7 @@ function LotLinesOverlay({ enabled, poseRef, containerRef, borderDots = CANYON_V
             cx: pt.x,
             cy: pt.y,
             r: pt.name === selectedPointName ? 9 : 7,
+            "data-name": pt.name,
             className: `lot-line-handle ${pt.name === selectedPointName ? "lot-line-handle--selected" : ""}`,
             onPointerDown: (event) => {
               dragPointRef.current = pt.name;
@@ -15276,7 +15273,7 @@ function SogsMigratedViewer({
           selectedPointName: selectedLotPointName,
           onPointMove: updateLotDotPosition,
           onPointSelect: setSelectedLotPointName,
-          poseRef,
+          iframeRef,
           containerRef
         }
       ),

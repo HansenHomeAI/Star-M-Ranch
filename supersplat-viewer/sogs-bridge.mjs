@@ -11,6 +11,10 @@ const tmpFrom = new Vec3();
 const tmpTo = new Vec3();
 /** Orbit focus point for `sogs:cameraPose` (parent overlays / Three.js projection). */
 const tmpFocus = new Vec3();
+const tmpLotWorld = new Vec3();
+const tmpLotScreen = new Vec3();
+const tmpLotNear = new Vec3();
+const tmpLotFar = new Vec3();
 
 /** Half-length of each axis arm from the origin (total span 2× this along each axis). */
 const AXIS_LEN = 10;
@@ -26,6 +30,58 @@ const BRIDGE_WAIT_TIMEOUT_MS = 60e3;
  */
 const LAYER_ID_IMMEDIATE = 3;
 const LOCAL_Y = new Vec3(0, 1, 0);
+
+function lotLineWorldY(baseY) {
+  return baseY + LOT_LINE_Y_OFFSET;
+}
+
+function projectSogsLotLinePoint(position) {
+  const camera = window.__sogsCtx?.camera?.camera;
+  const app = window.__sogsCtx?.app;
+  const x = Number(position?.x);
+  const y = Number(position?.y);
+  const z = Number(position?.z);
+  if (!camera || !app || !Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(z)) {
+    return null;
+  }
+  tmpLotWorld.set(x, lotLineWorldY(y), z);
+  const projected = camera.worldToScreen(tmpLotWorld, tmpLotScreen);
+  const rect = app.graphicsDevice?.clientRect;
+  const width = Number(rect?.width) || 0;
+  const height = Number(rect?.height) || 0;
+  const sx = projected.x;
+  const sy = projected.y;
+  return {
+    x: sx,
+    y: sy,
+    z: projected.z,
+    visible: Number.isFinite(sx) && Number.isFinite(sy) && sx >= -0.1 * width && sx <= 1.1 * width && sy >= -0.1 * height && sy <= 1.1 * height,
+  };
+}
+
+function screenToSogsLotLinePoint(screenX, screenY, baseY) {
+  const camera = window.__sogsCtx?.camera?.camera;
+  if (!camera || !Number.isFinite(screenX) || !Number.isFinite(screenY) || !Number.isFinite(baseY)) {
+    return null;
+  }
+  const near = Number(camera.nearClip) || 0.05;
+  const far = Number(camera.farClip) || 5e3;
+  camera.screenToWorld(screenX, screenY, near, tmpLotNear);
+  camera.screenToWorld(screenX, screenY, far, tmpLotFar);
+  const dy = tmpLotFar.y - tmpLotNear.y;
+  if (Math.abs(dy) < 1e-6) {
+    return null;
+  }
+  const t = (lotLineWorldY(baseY) - tmpLotNear.y) / dy;
+  if (!Number.isFinite(t)) {
+    return null;
+  }
+  return {
+    x: tmpLotNear.x + (tmpLotFar.x - tmpLotNear.x) * t,
+    y: baseY,
+    z: tmpLotNear.z + (tmpLotFar.z - tmpLotNear.z) * t,
+  };
+}
 
 function getBootOptions() {
   if (typeof window === "undefined") {
@@ -471,7 +527,7 @@ function setupSogsLotLines(app) {
     const y = Number(p.y);
     const z = Number(p.z);
     if (Number.isFinite(x) && Number.isFinite(y) && Number.isFinite(z)) {
-      byName.set(dot.name, new Vec3(x, y + LOT_LINE_Y_OFFSET, z));
+      byName.set(dot.name, new Vec3(x, lotLineWorldY(y), z));
     }
   }
 
@@ -564,6 +620,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     window.__sogsCtx = { viewer, app, camera };
+    window.__sogsProjectLotLinePoint = projectSogsLotLinePoint;
+    window.__sogsScreenToLotLinePoint = screenToSogsLotLinePoint;
 
     await waitForValue(() => app.root.findByName("gsplat"), "gsplat");
     await waitForValue(() => viewer.cameraManager, "cameraManager");
