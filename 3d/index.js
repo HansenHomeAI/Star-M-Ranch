@@ -7555,6 +7555,73 @@ var CANYON_VISTA_BORDER_LINES = [
   { start: "Lot_V18", end: "Lot_V21" },
   { start: "Lot_V21", end: "Lot_V15" }
 ];
+var DEFAULT_KML_LOT_TRANSFORM = { x: 0, y: -0.1, z: 0, scale: 1, rotation: 0 };
+function roundLotCoord(n) {
+  return Math.round(n * 1e3) / 1e3;
+}
+function createDefaultLotLines() {
+  return CANYON_VISTA_BORDER_LINES.map((l) => ({ ...l }));
+}
+function createDefaultLotDots() {
+  return CANYON_VISTA_BORDER_DOTS.map((d) => ({ name: d.name, position: { ...d.position } }));
+}
+function parseKmlCoordinateText(text) {
+  return text.trim().split(/\s+/).map((chunk) => {
+    const [lon, lat, alt = "0"] = chunk.split(",");
+    return { lon: Number(lon), lat: Number(lat), alt: Number(alt) };
+  }).filter((p) => Number.isFinite(p.lon) && Number.isFinite(p.lat));
+}
+function pointsNearlyEqual(a, b) {
+  return Math.abs(a.lon - b.lon) < 1e-10 && Math.abs(a.lat - b.lat) < 1e-10;
+}
+function parseKmlLotBoundary(text, fileName = "KML") {
+  const doc = new DOMParser().parseFromString(text, "application/xml");
+  if (doc.querySelector("parsererror")) {
+    throw new Error("Could not read this KML file.");
+  }
+  const candidates = Array.from(doc.getElementsByTagName("coordinates")).map((node) => parseKmlCoordinateText(node.textContent || "")).filter((coords) => coords.length >= 4).map((coords) => {
+    const clean = pointsNearlyEqual(coords[0], coords[coords.length - 1]) ? coords.slice(0, -1) : coords;
+    return clean;
+  }).filter((coords) => coords.length >= 3);
+  if (!candidates.length) {
+    throw new Error("No closed lot boundary coordinates found.");
+  }
+  const coords = candidates.sort((a, b) => b.length - a.length)[0];
+  const lons = coords.map((p) => p.lon);
+  const lats = coords.map((p) => p.lat);
+  const centerLon = (Math.min(...lons) + Math.max(...lons)) / 2;
+  const centerLat = (Math.min(...lats) + Math.max(...lats)) / 2;
+  const metersPerLon = Math.cos(centerLat * Math.PI / 180) * 111320;
+  const metersPerLat = 110540;
+  const rawPoints = coords.map((p) => ({
+    x: (p.lon - centerLon) * metersPerLon,
+    z: (p.lat - centerLat) * metersPerLat
+  }));
+  const xs = rawPoints.map((p) => p.x);
+  const zs = rawPoints.map((p) => p.z);
+  const span = Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...zs) - Math.min(...zs), 1e-6);
+  return {
+    fileName,
+    rawPoints,
+    autoScale: roundLotCoord(1.8 / span),
+    pointCount: rawPoints.length,
+    sourceCenter: { lon: centerLon, lat: centerLat }
+  };
+}
+function buildLotFromKmlBoundary(boundary, transform) {
+  const t = { ...DEFAULT_KML_LOT_TRANSFORM, ...transform };
+  const rad = t.rotation * Math.PI / 180;
+  const c = Math.cos(rad);
+  const s = Math.sin(rad);
+  const scale = Number.isFinite(t.scale) ? t.scale : 1;
+  const dots = boundary.rawPoints.map((p, i) => {
+    const x = (p.x * c - p.z * s) * scale + t.x;
+    const z = (p.x * s + p.z * c) * scale + t.z;
+    return { name: `KML_V${i + 1}`, position: { x: roundLotCoord(x), y: roundLotCoord(t.y), z: roundLotCoord(z) } };
+  });
+  const lines = dots.map((dot, i) => ({ start: dot.name, end: dots[(i + 1) % dots.length].name }));
+  return { dots, lines };
+}
 var CANYON_VISTA_SOLD_HOTSPOTS = [
   { text: "SOLD", position: { x: 0.22, y: 0.5, z: -0.85 }, scale: 0.2, verticalOffset: 0.06 }
 ];
@@ -14616,7 +14683,11 @@ function SogsMigratedViewer({
   const [showTapDots, setShowTapDots] = (0, import_react9.useState)(false);
   const [showLotLines, setShowLotLines] = (0, import_react9.useState)(false);
   const [showSoldLabels, setShowSoldLabels] = (0, import_react9.useState)(false);
-  const [lotDots, setLotDots] = (0, import_react9.useState)(() => CANYON_VISTA_BORDER_DOTS.map((d) => ({ name: d.name, position: { ...d.position } })));
+  const [lotDots, setLotDots] = (0, import_react9.useState)(() => createDefaultLotDots());
+  const [lotLines, setLotLines] = (0, import_react9.useState)(() => createDefaultLotLines());
+  const [kmlBoundary, setKmlBoundary] = (0, import_react9.useState)(null);
+  const [kmlTransform, setKmlTransform] = (0, import_react9.useState)(DEFAULT_KML_LOT_TRANSFORM);
+  const [kmlStatus, setKmlStatus] = (0, import_react9.useState)("");
   const [selectedLotPointName, setSelectedLotPointName] = (0, import_react9.useState)(() => CANYON_VISTA_BORDER_DOTS[0]?.name ?? "");
   const [pathVersion, setPathVersion] = (0, import_react9.useState)(0);
   const [photoDot, setPhotoDot] = (0, import_react9.useState)(null);
@@ -14657,16 +14728,52 @@ function SogsMigratedViewer({
     setLotDots((dots) => dots.map((d) => d.name === name ? { ...d, position: { x: roundSplatThousandths(position.x), y: roundSplatThousandths(position.y), z: roundSplatThousandths(position.z) } } : d));
   }, []);
   const resetLotDots = (0, import_react9.useCallback)(() => {
-    setLotDots(CANYON_VISTA_BORDER_DOTS.map((d) => ({ name: d.name, position: { ...d.position } })));
+    setKmlBoundary(null);
+    setKmlTransform(DEFAULT_KML_LOT_TRANSFORM);
+    setKmlStatus("");
+    setLotDots(createDefaultLotDots());
+    setLotLines(createDefaultLotLines());
     setSelectedLotPointName(CANYON_VISTA_BORDER_DOTS[0]?.name ?? "");
   }, []);
+  const importLotLinesKml = (0, import_react9.useCallback)(async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    try {
+      const boundary = parseKmlLotBoundary(await file.text(), file.name);
+      const transform = { ...DEFAULT_KML_LOT_TRANSFORM, scale: boundary.autoScale };
+      const built = buildLotFromKmlBoundary(boundary, transform);
+      setKmlBoundary(boundary);
+      setKmlTransform(transform);
+      setLotDots(built.dots);
+      setLotLines(built.lines);
+      setSelectedLotPointName(built.dots[0]?.name ?? "");
+      setShowLotLines(true);
+      setKmlStatus(`Loaded ${boundary.pointCount} KML vertices around origin.`);
+    } catch (err) {
+      setKmlStatus(err instanceof Error ? err.message : "Could not import this KML file.");
+    } finally {
+      event.target.value = "";
+    }
+  }, []);
+  const updateKmlTransform = (0, import_react9.useCallback)((patch) => {
+    setKmlTransform((current) => ({ ...current, ...patch }));
+  }, []);
+  (0, import_react9.useEffect)(() => {
+    if (!kmlBoundary) return;
+    const built = buildLotFromKmlBoundary(kmlBoundary, kmlTransform);
+    setLotDots(built.dots);
+    setLotLines(built.lines);
+    setSelectedLotPointName((name) => built.dots.some((d) => d.name === name) ? name : built.dots[0]?.name ?? "");
+  }, [kmlBoundary, kmlTransform]);
   const copyLotDotsJson = (0, import_react9.useCallback)(async () => {
     const payload = {
       borderDots: lotDots,
-      borderLines: CANYON_VISTA_BORDER_LINES
+      borderLines: lotLines,
+      kmlTransform: kmlBoundary ? kmlTransform : null,
+      source: kmlBoundary ? { type: "kml", fileName: kmlBoundary.fileName, coordinateMode: "relative_0_0" } : { type: "default" }
     };
     await navigator.clipboard?.writeText(JSON.stringify(payload, null, 2));
-  }, [lotDots]);
+  }, [lotDots, lotLines, kmlBoundary, kmlTransform]);
   (0, import_react9.useEffect)(() => {
     cameraBoundsRef.current = { yMin: cameraYMin, maxR: cameraMaxRadius };
   }, [cameraYMin, cameraMaxRadius]);
@@ -14998,9 +15105,9 @@ function SogsMigratedViewer({
       type: "sogs:lotLines",
       enabled: showLotLines,
       dots: lotDots,
-      lines: CANYON_VISTA_BORDER_LINES
+      lines: lotLines
     });
-  }, [showLotLines, lotDots, viewerState]);
+  }, [showLotLines, lotDots, lotLines, viewerState]);
   (0, import_react9.useEffect)(() => {
     if (viewerState !== "ready") return;
     const yMin = roundSplatThousandths(cameraYMin);
@@ -15528,6 +15635,58 @@ function SogsMigratedViewer({
             /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("button", { type: "button", className: "animation-editor-close", "aria-label": "Close lot line editor", onClick: () => setShowLotLines(false), children: "\xD7" })
           ] }),
           /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", { className: "lot-editor-status animation-editor-status-compact", children: toggleDisabled ? "Loading\u2026" : "Drag the white handles in the viewer or edit the selected vertex values." }),
+          /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "lot-editor-field", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("label", { htmlFor: "lot-line-kml", children: "KML" }),
+            /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(
+              "input",
+              {
+                id: "lot-line-kml",
+                "data-testid": "lot-line-kml",
+                type: "file",
+                accept: ".kml,application/vnd.google-earth.kml+xml,application/xml,text/xml",
+                disabled: toggleDisabled,
+                onChange: importLotLinesKml
+              }
+            ),
+            kmlStatus ? /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", { className: "lot-editor-status animation-editor-status-compact", children: kmlStatus }) : null
+          ] }),
+          kmlBoundary ? /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "lot-editor-grid lot-line-editor-grid", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "lot-editor-field", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("label", { htmlFor: "lot-line-kml-scale", children: "Scale" }),
+              /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("input", { id: "lot-line-kml-scale", "data-testid": "lot-line-kml-scale", type: "number", step: "0.01", disabled: toggleDisabled, value: kmlTransform.scale, onChange: (e) => {
+                const v = parseFloat(e.target.value);
+                if (Number.isFinite(v)) updateKmlTransform({ scale: v });
+              } })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "lot-editor-field", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("label", { htmlFor: "lot-line-kml-x", children: "Center X" }),
+              /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("input", { id: "lot-line-kml-x", "data-testid": "lot-line-kml-x", type: "number", step: "0.01", disabled: toggleDisabled, value: kmlTransform.x, onChange: (e) => {
+                const v = parseFloat(e.target.value);
+                if (Number.isFinite(v)) updateKmlTransform({ x: v });
+              } })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "lot-editor-field", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("label", { htmlFor: "lot-line-kml-z", children: "Center Z" }),
+              /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("input", { id: "lot-line-kml-z", "data-testid": "lot-line-kml-z", type: "number", step: "0.01", disabled: toggleDisabled, value: kmlTransform.z, onChange: (e) => {
+                const v = parseFloat(e.target.value);
+                if (Number.isFinite(v)) updateKmlTransform({ z: v });
+              } })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "lot-editor-field", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("label", { htmlFor: "lot-line-kml-y", children: "Center Y" }),
+              /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("input", { id: "lot-line-kml-y", "data-testid": "lot-line-kml-y", type: "number", step: "0.01", disabled: toggleDisabled, value: kmlTransform.y, onChange: (e) => {
+                const v = parseFloat(e.target.value);
+                if (Number.isFinite(v)) updateKmlTransform({ y: v });
+              } })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "lot-editor-field", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("label", { htmlFor: "lot-line-kml-rotation", children: "Rotation" }),
+              /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("input", { id: "lot-line-kml-rotation", "data-testid": "lot-line-kml-rotation", type: "number", step: "1", disabled: toggleDisabled, value: kmlTransform.rotation, onChange: (e) => {
+                const v = parseFloat(e.target.value);
+                if (Number.isFinite(v)) updateKmlTransform({ rotation: v });
+              } })
+            ] })
+          ] }) : null,
           /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "lot-editor-field", children: [
             /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("label", { htmlFor: "lot-line-point-picker", children: "Vertex" }),
             /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(
