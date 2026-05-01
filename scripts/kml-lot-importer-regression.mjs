@@ -52,6 +52,20 @@ function manyLinePoints(count) {
 
 {
   const kml = `<?xml version="1.0"?>
+  <kml><Document><Placemark><Polygon><outerBoundaryIs><LinearRing><coordinates>
+    -0.001,0.001,0
+     0.001,0.001,0
+     0.001,-0.001,0
+    -0.001,-0.001,0
+    -0.001,0.001,0
+  </coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark></Document></kml>`;
+  const boundary = parseKmlLotBoundary(kml, "orientation.kml");
+  assert.ok(boundary.rawPoints[0].z < 0, "higher KML latitude should map to negative viewer Z so imports are not mirrored");
+  assert.ok(boundary.rawPoints[2].z > 0, "lower KML latitude should map to positive viewer Z so imports are not mirrored");
+}
+
+{
+  const kml = `<?xml version="1.0"?>
   <kml><Document><Placemark><Polygon>
     <outerBoundaryIs><LinearRing><coordinates>
       -111.004,45.004,0 -111.000,45.004,0 -111.000,45.000,0 -111.004,45.000,0 -111.004,45.004,0
@@ -93,6 +107,7 @@ function manyLinePoints(count) {
   assert.equal(boundary.pointCount, 17, "Incognito bundled KML should parse all true lot vertices");
   assert.equal(boundary.sourceKind, "Polygon outerBoundaryIs");
   assert.equal(DEFAULT_INCOGNITO_KML_BOUNDARY.pointCount, boundary.pointCount);
+  assert.deepEqual(DEFAULT_INCOGNITO_KML_BOUNDARY.rawPoints, boundary.rawPoints, "Bundled fallback KML boundary should match the parser orientation");
   assert.equal(defaultDots.length, 17, "Default lot line should come from the Incognito KML boundary");
   assert.equal(defaultLines.length, 17, "Default lot line should be a closed Incognito loop");
   assert.equal(defaultLines.at(-1).start, "KML_V17");
