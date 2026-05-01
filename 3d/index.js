@@ -7538,7 +7538,8 @@ var CANYON_VISTA_BORDER_LINES = [
   { start: "Lot_V18", end: "Lot_V21" },
   { start: "Lot_V21", end: "Lot_V15" }
 ];
-var DEFAULT_KML_LOT_TRANSFORM = { x: 0, y: -0.1, z: 0, scale: 1, rotation: 0 };
+var DEFAULT_INCOGNITO_KML_URL = "assets/incognito_lot_line.kml";
+var DEFAULT_KML_LOT_TRANSFORM = { x: 0, y: 0, z: 0, scale: 1, rotation: 0 };
 function roundLotCoord(n) {
   return Math.round(n * 1e3) / 1e3;
 }
@@ -14871,7 +14872,7 @@ function SogsMigratedViewer({
   const [pathPlaying, setPathPlaying] = (0, import_react9.useState)(false);
   const [autoRotate, setAutoRotate] = (0, import_react9.useState)(CANYON_VISTA_ORBIT.autoRotateDefault);
   const [showTapDots, setShowTapDots] = (0, import_react9.useState)(true);
-  const [showLotLines, setShowLotLines] = (0, import_react9.useState)(false);
+  const [showLotLines, setShowLotLines] = (0, import_react9.useState)(true);
   const [showSoldLabels, setShowSoldLabels] = (0, import_react9.useState)(false);
   const [lotDots, setLotDots] = (0, import_react9.useState)(() => createDefaultLotDots());
   const [lotLines, setLotLines] = (0, import_react9.useState)(() => createDefaultLotLines());
@@ -14907,6 +14908,7 @@ function SogsMigratedViewer({
   const [showWorldAxes, setShowWorldAxes] = (0, import_react9.useState)(SOGS_DEFAULT_WORLD_AXES);
   const [cameraYMin, setCameraYMin] = (0, import_react9.useState)(CANYON_VISTA_CAMERA_WORLD_BOUNDS.yMin);
   const [cameraMaxRadius, setCameraMaxRadius] = (0, import_react9.useState)(CANYON_VISTA_CAMERA_WORLD_BOUNDS.maxRadiusFromOrigin);
+  const userImportedKmlRef = (0, import_react9.useRef)(false);
   const cameraBoundsRef = (0, import_react9.useRef)({
     yMin: CANYON_VISTA_CAMERA_WORLD_BOUNDS.yMin,
     maxR: CANYON_VISTA_CAMERA_WORLD_BOUNDS.maxRadiusFromOrigin
@@ -14928,6 +14930,7 @@ function SogsMigratedViewer({
   const importLotLinesKml = (0, import_react9.useCallback)(async (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
+    userImportedKmlRef.current = true;
     try {
       const boundary = parseKmlLotBoundary(await file.text(), file.name);
       const transform = { ...DEFAULT_KML_LOT_TRANSFORM, scale: boundary.autoScale };
@@ -14944,6 +14947,35 @@ function SogsMigratedViewer({
     } finally {
       event.target.value = "";
     }
+  }, []);
+  (0, import_react9.useEffect)(() => {
+    let cancelled = false;
+    const loadDefaultKml = async () => {
+      try {
+        const response = await fetch(tapDotAssetUrl(DEFAULT_INCOGNITO_KML_URL));
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        const boundary = parseKmlLotBoundary(await response.text(), "incognito_lot_line.kml");
+        if (cancelled || userImportedKmlRef.current) return;
+        const transform = { ...DEFAULT_KML_LOT_TRANSFORM, scale: boundary.autoScale };
+        const built = buildLotFromKmlBoundary(boundary, transform);
+        setKmlBoundary(boundary);
+        setKmlTransform(transform);
+        setLotDots(built.dots);
+        setLotLines(built.lines);
+        setSelectedLotPointName(built.dots[0]?.name ?? "");
+        setShowLotLines(true);
+        setKmlStatus(`Loaded ${boundary.pointCount} vertices from ${DEFAULT_INCOGNITO_KML_URL} around origin.`);
+      } catch (err) {
+        if (cancelled || userImportedKmlRef.current) return;
+        setKmlStatus(`Using bundled fallback: ${DEFAULT_INCOGNITO_KML_BOUNDARY.pointCount} Incognito KML vertices around origin.`);
+      }
+    };
+    loadDefaultKml();
+    return () => {
+      cancelled = true;
+    };
   }, []);
   const updateKmlTransform = (0, import_react9.useCallback)((patch) => {
     setKmlTransform((current) => ({ ...current, ...patch }));

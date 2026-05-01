@@ -20,7 +20,7 @@ const tmpLotFar = new Vec3();
 const AXIS_LEN = 10;
 /** Cylinder radius (÷10 vs prior 0.05 for skinnier rods). */
 const AXIS_RADIUS = 0.005;
-const LOT_LINE_RADIUS = 0.006;
+const LOT_LINE_RADIUS = 0.01;
 const LOT_LINE_Y_OFFSET = 0.08;
 const MAIN_BOOT_TIMEOUT_MS = 60e3;
 const BRIDGE_WAIT_TIMEOUT_MS = 60e3;
@@ -355,9 +355,9 @@ function axisMaterial(rgb) {
 
 function lotLineMaterial() {
   const m = new StandardMaterial();
-  m.diffuse = new Color(0.96, 0.93, 0.82);
-  m.emissive = new Color(0.72, 0.66, 0.48);
-  m.emissiveIntensity = 0.45;
+  m.diffuse = new Color(0.92, 1, 0.86);
+  m.emissive = new Color(0.72, 0.96, 0.52);
+  m.emissiveIntensity = 0.7;
   m.useLighting = false;
   return m;
 }
