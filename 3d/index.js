@@ -7398,7 +7398,7 @@ var CANYON_VISTA_HOLE_VIEW = {
   startPosition: { x: 0.22, y: 0.6, z: 2.75 },
   target: { x: 0, y: -0.06, z: 0 },
   minDistance: 0.65,
-  maxDistance: 10.4,
+  maxDistance: 50,
   minPolarAngle: 14,
   maxPolarAngle: 179,
   /** Degrees: positive Z = 0; matches Canyon-Vista `compass.northDirection`. */
@@ -7450,7 +7450,7 @@ var CANYON_VISTA_DEFAULT_PATH_CHECKPOINTS = [
 var CANYON_VISTA_CAMERA_START_Y = 0.55;
 var CANYON_VISTA_CAMERA_WORLD_BOUNDS = {
   yMin: 0,
-  maxRadiusFromOrigin: 1.2
+  maxRadiusFromOrigin: 50
 };
 
 // lib/canyon-vista/canyonVistaOverlays.ts
@@ -7468,7 +7468,7 @@ var CANYON_VISTA_TAP_DOTS = [
     icon: "camera",
     caption: "Front Entry",
     minDistance: 0.06,
-    maxDistance: 1.45,
+    maxDistance: 50,
     photos: [
       "assets/tapdots/front-entry.svg",
       "assets/tapdots/front-entry-detail.svg"
@@ -7480,7 +7480,7 @@ var CANYON_VISTA_TAP_DOTS = [
     icon: "camera",
     caption: "Mountain Lawn",
     minDistance: 0.06,
-    maxDistance: 1.45,
+    maxDistance: 50,
     photos: [
       "assets/tapdots/mountain-lawn.svg",
       "assets/tapdots/mountain-view.svg"
@@ -14549,7 +14549,7 @@ var import_react7 = __toESM(require_react(), 1);
 var import_jsx_runtime9 = __toESM(require_jsx_runtime(), 1);
 var TAPDOT_CAMERA_ICON = "https://raw.githubusercontent.com/HansenHomeAI/WhiteCameraIcon/main/3TestIcons-9.png";
 var TAP_DOT_DEFAULT_MIN_DISTANCE = 0.04;
-var TAP_DOT_DEFAULT_MAX_DISTANCE = 1.5;
+var TAP_DOT_DEFAULT_MAX_DISTANCE = 50;
 var TAP_DOT_DEFAULT_FADE_DISTANCE = 0.16;
 function tapDotDistanceOpacity(distance, minDistance, maxDistance, fadeDistance) {
   if (!Number.isFinite(distance)) return 0;

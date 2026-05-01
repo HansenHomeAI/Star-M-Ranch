@@ -20,4 +20,17 @@ if (!source.includes("TAP_DOT_DEFAULT_MAX_DISTANCE") || !source.includes("tapDot
   throw new Error("TapDotsOverlay must include distance limits/fade behavior.");
 }
 
+if (!source.includes("var TAP_DOT_DEFAULT_MAX_DISTANCE = 50;")) {
+  throw new Error("Tap dot default max distance must stay at 50 units.");
+}
+
+const tapDotMaxDistanceMatches = source.match(/maxDistance: 50/g) || [];
+if (tapDotMaxDistanceMatches.length < 2) {
+  throw new Error("Bundled tap dots must use a 50 unit max distance.");
+}
+
+if (!source.includes("maxDistance: 50") || !source.includes("maxRadiusFromOrigin: 50")) {
+  throw new Error("Viewer distance and radius caps must stay at 50 units.");
+}
+
 console.log("Tap dot overlay regression checks passed.");
