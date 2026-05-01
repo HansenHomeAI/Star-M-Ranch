@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 
 const source = readFileSync(new URL("../3d/index.js", import.meta.url), "utf8");
+const css = readFileSync(new URL("../3d/index.css", import.meta.url), "utf8");
 
 const tapDotsOverlay = source.match(/function TapDotsOverlay\([\s\S]*?\n}\n\n\/\/ components\/sogs-migrated-viewer\/TapPickFeedback\.tsx/)?.[0] || "";
 
@@ -31,6 +32,22 @@ if (tapDotMaxDistanceMatches.length < 2) {
 
 if (!source.includes("maxDistance: 50") || !source.includes("maxRadiusFromOrigin: 50")) {
   throw new Error("Viewer distance and radius caps must stay at 50 units.");
+}
+
+const tapDotBubbleCss = css.match(/\.tapdot-label-bubble \{[\s\S]*?\n\}/)?.[0] || "";
+const tapDotCameraCss = css.match(/\.tapdot-label-bubble \.tapdot-camera-icon \{[\s\S]*?\n\}/)?.[0] || "";
+const tapDotCameraSizeCss = css.match(/\.tapdot-label-bubble\.has-camera \{[\s\S]*?\n\}/)?.[0] || "";
+
+if (!tapDotBubbleCss.includes("gap: 6px;") || !tapDotBubbleCss.includes("padding: 7px 12px;")) {
+  throw new Error("Tap dot pills should keep the original compact spacing.");
+}
+
+if (tapDotBubbleCss.includes("min-height: 40px;")) {
+  throw new Error("Tap dot pills should not force the larger polished height.");
+}
+
+if (!tapDotCameraCss.includes("margin-right: -2px;") || !tapDotCameraSizeCss.includes("--tapdot-camera-size: 24px;")) {
+  throw new Error("Tap dot camera icon spacing should match the original compact pill layout.");
 }
 
 console.log("Tap dot overlay regression checks passed.");

@@ -714,9 +714,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 9px;
-  min-height: 40px;
-  padding: 8px 16px 8px 14px;
+  gap: 6px;
+  padding: 7px 12px;
   font-family:
     "Helvetica Neue",
     Arial,
@@ -769,12 +768,14 @@
   height: var(--tapdot-camera-size, 14px);
   object-fit: contain;
   flex-shrink: 0;
-  margin: 0;
+  margin-top: calc((1em - var(--tapdot-camera-size, 14px)) / 2 - 0.5px);
+  margin-bottom: calc((1em - var(--tapdot-camera-size, 14px)) / 2 + 0.5px);
+  margin-right: -2px;
   position: relative;
   z-index: 1;
 }
 .tapdot-label-bubble.has-camera {
-  --tapdot-camera-size: 23px;
+  --tapdot-camera-size: 24px;
 }
 .tapdot-label-bubble.icon-only {
   padding: 0;
