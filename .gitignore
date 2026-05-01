@@ -3,3 +3,4 @@ node_modules
 dist
 .playwright-mcp/
 tmp-*-proof.png
+proof-*.png
