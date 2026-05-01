@@ -7467,6 +7467,8 @@ var CANYON_VISTA_TAP_DOTS = [
     scale: 0.225,
     icon: "camera",
     caption: "Front Entry",
+    minDistance: 0.06,
+    maxDistance: 1.45,
     photos: [
       "assets/tapdots/front-entry.svg",
       "assets/tapdots/front-entry-detail.svg"
@@ -7477,6 +7479,8 @@ var CANYON_VISTA_TAP_DOTS = [
     scale: 0.225,
     icon: "camera",
     caption: "Mountain Lawn",
+    minDistance: 0.06,
+    maxDistance: 1.45,
     photos: [
       "assets/tapdots/mountain-lawn.svg",
       "assets/tapdots/mountain-view.svg"
@@ -14543,42 +14547,69 @@ function SoldOverlays({ enabled, hotspots, poseRef, containerRef }) {
 var import_react7 = __toESM(require_react(), 1);
 var import_jsx_runtime9 = __toESM(require_jsx_runtime(), 1);
 var TAPDOT_CAMERA_ICON = "https://raw.githubusercontent.com/HansenHomeAI/WhiteCameraIcon/main/3TestIcons-9.png";
-function TapDotsOverlay({ enabled, tapDots, poseRef, containerRef, onOpenPhotos }) {
-  const cameraRef = (0, import_react7.useRef)(createOverlayPerspectiveCamera());
-  const [projected, setProjected] = (0, import_react7.useState)([]);
+var TAP_DOT_DEFAULT_MIN_DISTANCE = 0.04;
+var TAP_DOT_DEFAULT_MAX_DISTANCE = 1.5;
+var TAP_DOT_DEFAULT_FADE_DISTANCE = 0.16;
+function tapDotDistanceOpacity(distance, minDistance, maxDistance, fadeDistance) {
+  if (!Number.isFinite(distance)) return 0;
+  if (distance < minDistance || distance > maxDistance) return 0;
+  const fade = Math.max(0.001, fadeDistance);
+  const nearOpacity = Math.min(1, (distance - minDistance) / fade);
+  const farOpacity = Math.min(1, (maxDistance - distance) / fade);
+  return Math.max(0, Math.min(1, nearOpacity, farOpacity));
+}
+function TapDotsOverlay({ enabled, tapDots, iframeRef, containerRef, onOpenPhotos }) {
+  const buttonRefs = (0, import_react7.useRef)([]);
   (0, import_react7.useEffect)(() => {
     if (!enabled) {
-      setProjected([]);
+      for (const button of buttonRefs.current) {
+        if (button) {
+          button.style.display = "none";
+        }
+      }
       return;
     }
     let raf = 0;
     const tick = () => {
       const el = containerRef.current;
-      const pose = poseRef.current;
-      if (el && pose) {
+      const projectWorldPoint = iframeRef.current?.contentWindow?.__sogsProjectWorldPoint;
+      if (el && typeof projectWorldPoint === "function") {
         const w = el.clientWidth;
         const h = el.clientHeight;
-        const cam = cameraRef.current;
-        syncOverlayCamera(cam, pose, w, h);
-        const next = tapDots.map((td) => {
-          const p = projectWorldToScreen(td.position, cam, w, h);
-          return { ...p, caption: td.caption, dot: td };
+        tapDots.forEach((td, i) => {
+          const button = buttonRefs.current[i];
+          if (!button) return;
+          const p = projectWorldPoint(td.position);
+          const x = Number(p?.x) || 0;
+          const y = Number(p?.y) || 0;
+          const distance = Number(p?.distance);
+          const minDistance = Number.isFinite(td.minDistance) ? td.minDistance : TAP_DOT_DEFAULT_MIN_DISTANCE;
+          const maxDistance = Number.isFinite(td.maxDistance) ? td.maxDistance : TAP_DOT_DEFAULT_MAX_DISTANCE;
+          const fadeDistance = Number.isFinite(td.fadeDistance) ? td.fadeDistance : TAP_DOT_DEFAULT_FADE_DISTANCE;
+          const opacity = tapDotDistanceOpacity(distance, minDistance, maxDistance, fadeDistance);
+          const visible = p?.visible === true && opacity > 0.02 && x >= 0 && x <= w && y >= 0 && y <= h;
+          button.style.left = `${Math.round(x)}px`;
+          button.style.top = `${Math.round(y)}px`;
+          button.style.opacity = String(opacity);
+          button.style.display = visible ? "inline-flex" : "none";
+          button.setAttribute("aria-hidden", visible ? "false" : "true");
         });
-        setProjected(next);
+      } else {
+        for (const button of buttonRefs.current) {
+          if (button) {
+            button.style.display = "none";
+          }
+        }
       }
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [enabled, tapDots, poseRef, containerRef]);
+  }, [enabled, tapDots, iframeRef, containerRef]);
   if (!enabled) {
     return null;
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("div", { className: "tapdot-layer", "aria-hidden": !projected.length, children: projected.map((d, i) => {
-    if (!d.visible) {
-      return null;
-    }
-    const dot = d.dot;
+  return /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("div", { className: "tapdot-layer", "aria-hidden": false, children: tapDots.map((dot, i) => {
     const isCamera = dot.icon === "camera";
     const iconOnly = dot.icon === "info" && (!dot.photos || dot.photos.length === 0);
     const bubbleClass = [
@@ -14589,24 +14620,28 @@ function TapDotsOverlay({ enabled, tapDots, poseRef, containerRef, onOpenPhotos 
     return /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)(
       "button",
       {
+        ref: (node) => {
+          buttonRefs.current[i] = node;
+        },
         type: "button",
         className: bubbleClass,
         style: {
-          left: d.x,
-          top: d.y,
-          opacity: 1
+          left: 0,
+          top: 0,
+          opacity: 0,
+          display: "none"
         },
-        onClick: () => onOpenPhotos(d.dot),
-        "aria-label": d.caption,
+        onClick: () => onOpenPhotos(dot),
+        "aria-label": dot.caption,
         children: [
           isCamera ? (
             // eslint-disable-next-line @next/next/no-img-element
             /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("img", { className: "tapdot-camera-icon", src: TAPDOT_CAMERA_ICON, alt: "", draggable: false })
           ) : null,
-          !iconOnly ? /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { className: "tapdot-label-text", children: d.caption }) : null
+          !iconOnly ? /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("span", { className: "tapdot-label-text", children: dot.caption }) : null
         ]
       },
-      `${d.caption}-${i}`
+      `${dot.caption}-${i}`
     );
   }) });
 }
@@ -15563,7 +15598,7 @@ function SogsMigratedViewer({
         {
           enabled: viewerState === "ready" && showTapDots,
           tapDots: CANYON_VISTA_TAP_DOTS,
-          poseRef,
+          iframeRef,
           containerRef,
           onOpenPhotos: (d) => {
             setDetailsOpen(false);

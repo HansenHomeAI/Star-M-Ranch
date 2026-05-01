@@ -35,7 +35,8 @@ function lotLineWorldY(baseY) {
   return baseY + LOT_LINE_Y_OFFSET;
 }
 
-function projectSogsLotLinePoint(position) {
+function projectSogsWorldPoint(position, yOffset = 0) {
+  const cameraEntity = window.__sogsCtx?.camera;
   const camera = window.__sogsCtx?.camera?.camera;
   const app = window.__sogsCtx?.app;
   const x = Number(position?.x);
@@ -44,19 +45,26 @@ function projectSogsLotLinePoint(position) {
   if (!camera || !app || !Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(z)) {
     return null;
   }
-  tmpLotWorld.set(x, lotLineWorldY(y), z);
+  tmpLotWorld.set(x, y + yOffset, z);
   const projected = camera.worldToScreen(tmpLotWorld, tmpLotScreen);
   const rect = app.graphicsDevice?.clientRect;
   const width = Number(rect?.width) || 0;
   const height = Number(rect?.height) || 0;
   const sx = projected.x;
   const sy = projected.y;
+  const cameraPosition = typeof cameraEntity?.getPosition === "function" ? cameraEntity.getPosition() : null;
+  const distance = cameraPosition ? tmpLotWorld.distance(cameraPosition) : null;
   return {
     x: sx,
     y: sy,
     z: projected.z,
+    distance,
     visible: Number.isFinite(sx) && Number.isFinite(sy) && sx >= -0.1 * width && sx <= 1.1 * width && sy >= -0.1 * height && sy <= 1.1 * height,
   };
+}
+
+function projectSogsLotLinePoint(position) {
+  return projectSogsWorldPoint(position, LOT_LINE_Y_OFFSET);
 }
 
 function screenToSogsLotLinePoint(screenX, screenY, baseY) {
@@ -621,6 +629,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     window.__sogsCtx = { viewer, app, camera };
     window.__sogsProjectLotLinePoint = projectSogsLotLinePoint;
+    window.__sogsProjectWorldPoint = projectSogsWorldPoint;
     window.__sogsScreenToLotLinePoint = screenToSogsLotLinePoint;
 
     await waitForValue(() => app.root.findByName("gsplat"), "gsplat");
