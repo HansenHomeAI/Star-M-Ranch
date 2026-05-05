@@ -14873,6 +14873,7 @@ function SogsMigratedViewer({
   const [autoRotate, setAutoRotate] = (0, import_react9.useState)(CANYON_VISTA_ORBIT.autoRotateDefault);
   const [showTapDots, setShowTapDots] = (0, import_react9.useState)(true);
   const [showLotLines, setShowLotLines] = (0, import_react9.useState)(true);
+  const [lotLineEditorOpen, setLotLineEditorOpen] = (0, import_react9.useState)(false);
   const [showSoldLabels, setShowSoldLabels] = (0, import_react9.useState)(false);
   const [lotDots, setLotDots] = (0, import_react9.useState)(() => createDefaultLotDots());
   const [lotLines, setLotLines] = (0, import_react9.useState)(() => createDefaultLotLines());
@@ -15723,11 +15724,16 @@ function SogsMigratedViewer({
         "button",
         {
           type: "button",
-          className: `lot-editor-toggle animation-editor-toggle-icon-only ${showLotLines ? "active" : ""}`,
-          "aria-pressed": showLotLines,
-          "aria-label": "Toggle lot lines",
+          className: `lot-editor-toggle animation-editor-toggle-icon-only ${lotLineEditorOpen ? "active" : ""}`,
+          "aria-pressed": lotLineEditorOpen,
+          "aria-expanded": lotLineEditorOpen,
+          "aria-controls": "lotLineEditorPanel",
+          "aria-label": "Toggle lot line editor",
           disabled: toggleDisabled,
-          onClick: () => setShowLotLines((v) => !v),
+          onClick: () => {
+            setShowLotLines(true);
+            setLotLineEditorOpen((v) => !v);
+          },
           children: /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("svg", { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "1.8", strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": true, children: [
             /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("path", { d: "M3 17.5V21h3.5L17.2 10.3l-3.5-3.5L3 17.5z" }),
             /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("path", { d: "M12.4 7.6l3.5 3.5" }),
@@ -15895,14 +15901,14 @@ function SogsMigratedViewer({
       "div",
       {
         id: "lotLineEditorPanel",
-        className: `lot-editor-panel animation-editor-panel lot-line-editor-panel ${showLotLines ? "active" : ""}`,
+        className: `lot-editor-panel animation-editor-panel lot-line-editor-panel ${lotLineEditorOpen ? "active" : ""}`,
         "aria-live": "polite",
-        "aria-hidden": !showLotLines,
+        "aria-hidden": !lotLineEditorOpen,
         "data-testid": "lot-line-editor-panel",
         children: [
           /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "animation-editor-header", children: [
             /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", { className: "lot-editor-title", children: "Lot lines" }),
-            /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("button", { type: "button", className: "animation-editor-close", "aria-label": "Close lot line editor", onClick: () => setShowLotLines(false), children: "\xD7" })
+            /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("button", { type: "button", className: "animation-editor-close", "aria-label": "Close lot line editor", onClick: () => setLotLineEditorOpen(false), children: "\xD7" })
           ] }),
           /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", { className: "lot-editor-status animation-editor-status-compact", children: toggleDisabled ? "Loading\u2026" : "Drag the white handles in the viewer or edit the selected vertex values." }),
           /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "lot-editor-field", children: [
