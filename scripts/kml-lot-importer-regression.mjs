@@ -13,11 +13,11 @@ const sandbox = { console };
 vm.createContext(sandbox);
 vm.runInContext(
   `${source.slice(start, end)}
-  globalThis.__kmlLotImporter = { parseKmlLotBoundary, buildLotFromKmlBoundary, createDefaultLotDots, createDefaultLotLines, DEFAULT_INCOGNITO_KML_BOUNDARY };`,
+  globalThis.__kmlLotImporter = { parseKmlLotBoundary, buildLotFromKmlBoundary, createDefaultLotDots, createDefaultLotLines, getAdjacentLotVertexName, DEFAULT_INCOGNITO_KML_BOUNDARY };`,
   sandbox
 );
 
-const { parseKmlLotBoundary, buildLotFromKmlBoundary, createDefaultLotDots, createDefaultLotLines, DEFAULT_INCOGNITO_KML_BOUNDARY } = sandbox.__kmlLotImporter;
+const { parseKmlLotBoundary, buildLotFromKmlBoundary, createDefaultLotDots, createDefaultLotLines, getAdjacentLotVertexName, DEFAULT_INCOGNITO_KML_BOUNDARY } = sandbox.__kmlLotImporter;
 
 function manyLinePoints(count) {
   return Array.from({ length: count }, (_, i) => `${-111 + i * 0.00001},45.${String(i).padStart(3, "0")},0`).join(" ");
@@ -118,6 +118,15 @@ function manyLinePoints(count) {
   assert.equal(defaultLines.at(-1).end, "KML_V1");
 }
 
+{
+  const dots = [{ name: "KML_V1" }, { name: "KML_V2" }, { name: "KML_V3" }];
+  const lines = [{ start: "KML_V1", end: "KML_V2" }, { start: "KML_V2", end: "KML_V3" }, { start: "KML_V3", end: "KML_V1" }];
+  assert.equal(getAdjacentLotVertexName("KML_V2", 1, dots, lines), "KML_V3", "Right arrow should select the next connected lot vertex");
+  assert.equal(getAdjacentLotVertexName("KML_V2", -1, dots, lines), "KML_V1", "Left arrow should select the previous connected lot vertex");
+  assert.equal(getAdjacentLotVertexName("KML_V1", -1, dots, lines), "KML_V3", "Left arrow should wrap around a closed lot line loop");
+  assert.equal(getAdjacentLotVertexName("missing", 1, dots, []), "KML_V1", "Keyboard selection should recover to the first vertex when the current selection is missing");
+}
+
 assert.match(source, /var DEFAULT_INCOGNITO_KML_URL = "assets\/incognito_lot_line\.kml";/, "Default Incognito KML asset path should be explicit in the app");
 assert.match(source, /var DEFAULT_KML_LOT_TRANSFORM = \{ x: 0, y: 0, z: 0, scale: 1, rotation: 0 \};/, "Default KML should sit high enough to be visible before manual Y adjustment");
 assert.match(source, /var DEFAULT_INCOGNITO_KML_TRANSFORM = \{ \.\.\.DEFAULT_KML_LOT_TRANSFORM, x: 0\.061, y: -0\.074, z: -0\.174, scale: 0\.00105, rotation: 11\.2 \};/, "Default Incognito KML should use the user's saved aligned transform");
@@ -129,6 +138,15 @@ assert.match(source, /"aria-hidden": !lotLineEditorOpen/, "Lot line editor aria-
 assert.match(source, /"aria-label": "Toggle lot line editor"/, "Toolbar button should toggle the editor, not the rendered line visibility");
 assert.match(source, /LotLinesOverlay[\s\S]*?enabled: viewerState === "ready" && showLotLines[\s\S]*?editable: lotLineEditorOpen/, "Lot line drag handles and add-vertex controls should only show when the lot line editor is open");
 assert.doesNotMatch(source, /LotLinesOverlay[\s\S]*?enabled: viewerState === "ready" && showLotLines[\s\S]*?editable: developerToolsEnabled/, "Global dev tools should not expose lot line edit affordances unless the lot line editor is open");
+assert.match(source, /var LOT_LINE_KEYBOARD_Y_STEP = 0\.001;/, "Selected lot vertices should move on the Y axis in small keyboard increments");
+assert.match(source, /function getAdjacentLotVertexName\(/, "Lot line keyboard navigation should use connected neighboring vertices");
+assert.match(source, /window\.addEventListener\("keydown", onLotLineKeyDown\)/, "Lot line editor should listen for keyboard nudges while active");
+assert.match(source, /event\.key === "ArrowUp"[\s\S]*?LOT_LINE_KEYBOARD_Y_STEP/, "ArrowUp should nudge the selected vertex Y upward by the small step");
+assert.match(source, /event\.key === "ArrowDown"[\s\S]*?LOT_LINE_KEYBOARD_Y_STEP/, "ArrowDown should nudge the selected vertex Y downward by the small step");
+assert.match(source, /event\.key === "ArrowRight"[\s\S]*?getAdjacentLotVertexName\(selectedLotPointName, 1, lotDots, lotLines\)/, "ArrowRight should select the next connected lot vertex");
+assert.match(source, /event\.key === "ArrowLeft"[\s\S]*?getAdjacentLotVertexName\(selectedLotPointName, -1, lotDots, lotLines\)/, "ArrowLeft should select the previous connected lot vertex");
+assert.match(source, /closest\?\.\("input, textarea, \[contenteditable=true\]"\)/, "Lot line keyboard shortcuts should not steal arrows from editable text fields");
+assert.doesNotMatch(source, /closest\?\.\("input, textarea, select, \[contenteditable=true\]"\)/, "Lot line keyboard shortcuts should still work after choosing a vertex from the select menu");
 assert.match(source, /function copyTextToClipboard\(text\)/, "Lot line JSON copy should use the shared clipboard helper");
 assert.match(source, /function legacyCopyTextToClipboard\(text\)/, "Lot line JSON copy should have a legacy fallback when clipboard permission fails");
 assert.match(source, /function copyTextWithLocalDevBridge\(text\)/, "Lot line JSON copy should use the local dev clipboard bridge when available");

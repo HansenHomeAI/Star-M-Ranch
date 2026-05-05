@@ -7728,6 +7728,7 @@ var CANYON_VISTA_BORDER_LINES = [
 ];
 var DEFAULT_INCOGNITO_KML_URL = "assets/incognito_lot_line.kml";
 var DEFAULT_KML_LOT_TRANSFORM = { x: 0, y: 0, z: 0, scale: 1, rotation: 0 };
+var LOT_LINE_KEYBOARD_Y_STEP = 0.001;
 function roundLotCoord(n) {
   return Math.round(n * 1e3) / 1e3;
 }
@@ -7747,6 +7748,21 @@ function createNextLotVertexName(dots) {
   const names = new Set(dots.map((d) => d.name));
   while (names.has(`${prefix}${next}`)) next++;
   return `${prefix}${next}`;
+}
+function getAdjacentLotVertexName(currentName, direction, dots = [], lines = []) {
+  if (!dots.length) return "";
+  if (!currentName || !dots.some((dot) => dot.name === currentName)) {
+    return dots[0]?.name ?? "";
+  }
+  const forward = direction >= 0;
+  const connected = forward ? lines.find((line) => line.start === currentName)?.end : lines.find((line) => line.end === currentName)?.start;
+  if (connected && dots.some((dot) => dot.name === connected)) {
+    return connected;
+  }
+  const currentIndex = dots.findIndex((dot) => dot.name === currentName);
+  if (currentIndex < 0) return dots[0]?.name ?? "";
+  const nextIndex = (currentIndex + (forward ? 1 : -1) + dots.length) % dots.length;
+  return dots[nextIndex]?.name ?? "";
 }
 function parseKmlCoordinateText(text) {
   const cleaned = decodeKmlText(text).replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1");
@@ -15140,10 +15156,45 @@ function SogsMigratedViewer({
   });
   const showWorldAxesRef = (0, import_react9.useRef)(SOGS_DEFAULT_WORLD_AXES);
   const selectedLotDot = (0, import_react9.useMemo)(() => lotDots.find((d) => d.name === selectedLotPointName) ?? lotDots[0] ?? null, [lotDots, selectedLotPointName]);
+  const toggleDisabled = viewerState !== "ready";
   const updateLotDotPosition = (0, import_react9.useCallback)((name, position) => {
     setSelectedLotPointName(name);
     setLotDots((dots) => dots.map((d) => d.name === name ? { ...d, position: { x: roundSplatThousandths(position.x), y: roundSplatThousandths(position.y), z: roundSplatThousandths(position.z) } } : d));
   }, []);
+  (0, import_react9.useEffect)(() => {
+    if (!lotLineEditorOpen || !showLotLines || toggleDisabled) return;
+    const onLotLineKeyDown = (event) => {
+      if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey) return;
+      if (event.target?.closest?.("input, textarea, [contenteditable=true]")) return;
+      if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+        if (!selectedLotDot) return;
+        event.preventDefault();
+        const direction = event.key === "ArrowUp" ? 1 : -1;
+        updateLotDotPosition(selectedLotDot.name, {
+          ...selectedLotDot.position,
+          y: roundSplatThousandths(selectedLotDot.position.y + direction * LOT_LINE_KEYBOARD_Y_STEP)
+        });
+        return;
+      }
+      if (event.key === "ArrowRight") {
+        const next = getAdjacentLotVertexName(selectedLotPointName, 1, lotDots, lotLines);
+        if (next) {
+          event.preventDefault();
+          setSelectedLotPointName(next);
+        }
+        return;
+      }
+      if (event.key === "ArrowLeft") {
+        const next = getAdjacentLotVertexName(selectedLotPointName, -1, lotDots, lotLines);
+        if (next) {
+          event.preventDefault();
+          setSelectedLotPointName(next);
+        }
+      }
+    };
+    window.addEventListener("keydown", onLotLineKeyDown);
+    return () => window.removeEventListener("keydown", onLotLineKeyDown);
+  }, [lotLineEditorOpen, showLotLines, toggleDisabled, selectedLotDot, selectedLotPointName, lotDots, lotLines, updateLotDotPosition]);
   const resetLotDots = (0, import_react9.useCallback)(() => {
     setKmlBoundary(DEFAULT_INCOGNITO_KML_BOUNDARY);
     setKmlTransform(DEFAULT_INCOGNITO_KML_TRANSFORM);
@@ -15806,7 +15857,6 @@ function SogsMigratedViewer({
     },
     [bumpPath]
   );
-  const toggleDisabled = viewerState !== "ready";
   const splatWheelStateRef = (0, import_react9.useRef)(null);
   splatWheelStateRef.current = {
     toggleDisabled,
