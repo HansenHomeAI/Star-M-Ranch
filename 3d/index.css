@@ -753,7 +753,7 @@
   backdrop-filter: blur(20px);
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
   transition: opacity 140ms ease;
-  will-change: opacity;
+  will-change: transform, opacity;
 }
 .tapdot-label-bubble::before {
   content: "";

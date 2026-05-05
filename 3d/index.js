@@ -14644,6 +14644,10 @@ function tapDotDistanceOpacity(distance, minDistance, maxDistance, fadeDistance)
   const farOpacity = Math.min(1, (maxDistance - distance) / fade);
   return Math.max(0, Math.min(1, nearOpacity, farOpacity));
 }
+function tapDotScreenCoord(value) {
+  const n = Number(value);
+  return Number.isFinite(n) ? Math.round(n * 100) / 100 : 0;
+}
 function TapDotsOverlay({ enabled, tapDots, iframeRef, containerRef, onOpenPhotos }) {
   const buttonRefs = (0, import_react7.useRef)([]);
   (0, import_react7.useEffect)(() => {
@@ -14674,8 +14678,7 @@ function TapDotsOverlay({ enabled, tapDots, iframeRef, containerRef, onOpenPhoto
           const fadeDistance = Number.isFinite(td.fadeDistance) ? td.fadeDistance : TAP_DOT_DEFAULT_FADE_DISTANCE;
           const opacity = tapDotDistanceOpacity(distance, minDistance, maxDistance, fadeDistance);
           const visible = p?.visible === true && opacity > 0.02 && x >= 0 && x <= w && y >= 0 && y <= h;
-          button.style.left = `${Math.round(x)}px`;
-          button.style.top = `${Math.round(y)}px`;
+          button.style.transform = `translate3d(${tapDotScreenCoord(x)}px, ${tapDotScreenCoord(y)}px, 0) translate(-50%, -100%)`;
           button.style.opacity = String(opacity);
           button.style.display = visible ? "inline-flex" : "none";
           button.setAttribute("aria-hidden", visible ? "false" : "true");
@@ -14714,6 +14717,7 @@ function TapDotsOverlay({ enabled, tapDots, iframeRef, containerRef, onOpenPhoto
         style: {
           left: 0,
           top: 0,
+          transform: "translate3d(0, 0, 0) translate(-50%, -100%)",
           opacity: 0,
           display: "none"
         },
