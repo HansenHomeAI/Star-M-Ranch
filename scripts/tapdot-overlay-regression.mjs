@@ -34,6 +34,25 @@ if (!source.includes("maxDistance: 50") || !source.includes("maxRadiusFromOrigin
   throw new Error("Viewer distance and radius caps must stay at 50 units.");
 }
 
+const incognitoProjectId = "78659e97-7978-43f6-88b8-577e45f182de";
+for (const folderName of ["Main House", "Attached Shop and Studio/Guest Apt", "Guest/Caretaker Cabin", "Horse Barn"]) {
+  if (!source.includes(`caption: "${folderName}"`)) {
+    throw new Error(`Expected an Incognito tap dot named after folder: ${folderName}`);
+  }
+}
+if (!source.includes(incognitoProjectId)) {
+  throw new Error("Expected Incognito tap dots to use the uploaded Incognito project photo URLs.");
+}
+for (const otherProjectId of ["9988ace7-373e-4364-ad1c-74662068cd74", "97d978ad-6e40-4f4b-97cd-ed7e5d921da5"]) {
+  if (source.includes(otherProjectId)) {
+    throw new Error(`Incognito viewer should not include photos from other property project ${otherProjectId}.`);
+  }
+}
+const staticPhotoUrlMatches = source.match(/https:\/\/spcprt\.com\/spaces\/media\/users\/d8914320-9061-70dd-72d5-0e5878ed821c\/projects\/78659e97-7978-43f6-88b8-577e45f182de\/photos\//g) || [];
+if (staticPhotoUrlMatches.length !== 87) {
+  throw new Error(`Expected all 87 Incognito public photo URLs to be attached to tap dots, found ${staticPhotoUrlMatches.length}.`);
+}
+
 const tapDotBubbleCss = css.match(/\.tapdot-label-bubble \{[\s\S]*?\n\}/)?.[0] || "";
 const tapDotCameraCss = css.match(/\.tapdot-label-bubble \.tapdot-camera-icon \{[\s\S]*?\n\}/)?.[0] || "";
 const tapDotCameraSizeCss = css.match(/\.tapdot-label-bubble\.has-camera \{[\s\S]*?\n\}/)?.[0] || "";
