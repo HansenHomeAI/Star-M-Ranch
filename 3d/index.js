@@ -8433,6 +8433,23 @@ function CanyonDetailsPanel({ open, onClose }) {
 var import_react4 = __toESM(require_react(), 1);
 var import_jsx_runtime5 = __toESM(require_jsx_runtime(), 1);
 var CLOSE_ICON2 = "https://raw.githubusercontent.com/HansenHomeAI/FigmaSVGButtons/main/Close2IconDefault.svg";
+var TAP_DOT_IDLE_PRELOAD_COUNT = 2;
+var TAP_DOT_OPEN_PRELOAD_AHEAD = 3;
+var tapDotImagePreloadCache = /* @__PURE__ */ new Set();
+function preloadTapDotImage(url) {
+  if (!url || tapDotImagePreloadCache.has(url) || typeof Image === "undefined") return;
+  tapDotImagePreloadCache.add(url);
+  const img = new Image();
+  img.decoding = "async";
+  img.src = url;
+}
+function preloadTapDotImages(urls, startIdx = 0, count = TAP_DOT_OPEN_PRELOAD_AHEAD) {
+  if (!urls.length || count <= 0) return;
+  for (let offset = 0; offset < count; offset++) {
+    const index = (startIdx + offset) % urls.length;
+    preloadTapDotImage(urls[index]);
+  }
+}
 function CanyonPhotoModal({ dot, onClose }) {
   const [idx, setIdx] = (0, import_react4.useState)(0);
   const [visible, setVisible] = (0, import_react4.useState)(false);
@@ -8458,6 +8475,10 @@ function CanyonPhotoModal({ dot, onClose }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [dot, onClose]);
   const urls = (0, import_react4.useMemo)(() => dot ? dot.photos.map(tapDotAssetUrl) : [], [dot]);
+  (0, import_react4.useEffect)(() => {
+    if (!dot || !urls.length) return;
+    preloadTapDotImages(urls, idx + 1, TAP_DOT_OPEN_PRELOAD_AHEAD);
+  }, [dot, idx, urls]);
   const src = urls[idx] ?? urls[0];
   const multi = urls.length > 1;
   const goTo = (0, import_react4.useCallback)(
@@ -14749,6 +14770,18 @@ function tapDotDistanceOpacity(distance, minDistance, maxDistance, fadeDistance)
 }
 function TapDotsOverlay({ enabled, tapDots, iframeRef, containerRef, onOpenPhotos }) {
   const buttonRefs = (0, import_react7.useRef)([]);
+  (0, import_react7.useEffect)(() => {
+    if (!enabled) return;
+    const schedule = window.requestIdleCallback ?? ((cb) => window.setTimeout(cb, 250));
+    const cancel = window.cancelIdleCallback ?? window.clearTimeout;
+    const id = schedule(() => {
+      for (const dot of tapDots) {
+        const urls = Array.isArray(dot.photos) ? dot.photos.map(tapDotAssetUrl) : [];
+        preloadTapDotImages(urls, 0, TAP_DOT_IDLE_PRELOAD_COUNT);
+      }
+    });
+    return () => cancel(id);
+  }, [enabled, tapDots]);
   (0, import_react7.useEffect)(() => {
     if (!enabled) {
       for (const button of buttonRefs.current) {

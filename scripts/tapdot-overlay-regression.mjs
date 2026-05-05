@@ -52,6 +52,21 @@ const staticPhotoUrlMatches = source.match(/https:\/\/spcprt\.com\/spaces\/media
 if (staticPhotoUrlMatches.length !== 87) {
   throw new Error(`Expected all 87 Incognito public photo URLs to be attached to tap dots, found ${staticPhotoUrlMatches.length}.`);
 }
+if (!source.includes("var TAP_DOT_IDLE_PRELOAD_COUNT = 2;")) {
+  throw new Error("Tap dot layer should idle-preload the first 2 photos for each tap dot.");
+}
+if (!source.includes("var TAP_DOT_OPEN_PRELOAD_AHEAD = 3;")) {
+  throw new Error("Tap dot galleries should preload at least the next 3 photos when opened or advanced.");
+}
+if (!source.includes("function preloadTapDotImages(urls, startIdx = 0, count = TAP_DOT_OPEN_PRELOAD_AHEAD)")) {
+  throw new Error("Tap dot gallery should have a reusable bounded image preloader.");
+}
+if (!source.includes("preloadTapDotImages(urls, idx + 1, TAP_DOT_OPEN_PRELOAD_AHEAD)")) {
+  throw new Error("Tap dot gallery should preload the next 3 photos from the active image.");
+}
+if (!tapDotsOverlay.includes("requestIdleCallback") || !tapDotsOverlay.includes("TAP_DOT_IDLE_PRELOAD_COUNT")) {
+  throw new Error("Tap dot layer should lazy-preload each tap dot's first 2 photos during idle time.");
+}
 
 const tapDotBubbleCss = css.match(/\.tapdot-label-bubble \{[\s\S]*?\n\}/)?.[0] || "";
 const tapDotCameraCss = css.match(/\.tapdot-label-bubble \.tapdot-camera-icon \{[\s\S]*?\n\}/)?.[0] || "";
