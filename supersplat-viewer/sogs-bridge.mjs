@@ -22,8 +22,10 @@ const AXIS_LEN = 10;
 const AXIS_RADIUS = 0.005;
 const LOT_LINE_DEFAULT_WIDTH = 0.01;
 const LOT_LINE_DEFAULT_HEIGHT = 0.003;
+const LOT_LINE_DEFAULT_OPACITY = 0.72;
 const LOT_LINE_DEFAULT_COLOR = "#eaffdb";
 const LOT_LINE_Y_OFFSET = 0.08;
+const LOT_LINE_BLEND_NORMAL = 2;
 const MAIN_BOOT_TIMEOUT_MS = 60e3;
 const BRIDGE_WAIT_TIMEOUT_MS = 60e3;
 /**
@@ -379,12 +381,18 @@ function normalizeLotLineStyle(style) {
     rgb,
     width: normalizeLotLineDimension(style?.width, fallbackWidth),
     height: normalizeLotLineDimension(style?.height, fallbackHeight),
+    opacity: normalizeLotLineOpacity(style?.opacity),
   };
 }
 
 function normalizeLotLineDimension(value, fallback) {
   const n = Number(value);
   return Number.isFinite(n) ? Math.max(1e-3, Math.min(0.08, n)) : fallback;
+}
+
+function normalizeLotLineOpacity(value) {
+  const n = Number(value);
+  return Number.isFinite(n) ? Math.max(0.1, Math.min(1, n)) : LOT_LINE_DEFAULT_OPACITY;
 }
 
 function dot3(a, b) {
@@ -458,6 +466,9 @@ function lotLineMaterial(style = normalizeLotLineStyle()) {
   m.diffuse = new Color(rgb[0], rgb[1], rgb[2]);
   m.emissive = new Color(rgb[0], rgb[1], rgb[2]);
   m.emissiveIntensity = 0.7;
+  m.opacity = style.opacity;
+  m.blendType = LOT_LINE_BLEND_NORMAL;
+  m.depthWrite = style.opacity >= 0.99;
   m.useLighting = false;
   return m;
 }

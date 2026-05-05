@@ -135,10 +135,11 @@ assert.match(source, /function copyTextWithLocalDevBridge\(text\)/, "Lot line JS
 assert.match(source, /fetch\("\/__meadow\/clipboard"/, "Lot line JSON copy should post to the local clipboard bridge on localhost");
 assert.match(source, /const \[lotCopyFeedback, setLotCopyFeedback\]/, "Lot line JSON copy should show success or failure feedback");
 assert.match(source, /setLotCopyFeedback\(`Copied \$\{lotDots\.length\} vertices`\)/, "Lot line JSON copy feedback should confirm the copied vertex count");
-assert.match(source, /var DEFAULT_LOT_LINE_STYLE = \{ color: "#eaffdb", width: 0\.01, height: 0\.003 \};/, "Lot lines should have default editable color, width, and flattened height");
+assert.match(source, /var DEFAULT_LOT_LINE_STYLE = \{ color: "#eaffdb", width: 0\.01, height: 0\.003, opacity: 0\.72 \};/, "Lot lines should have default editable color, width, flattened height, and opacity");
 assert.match(source, /style: lotLineStyle/, "Lot line JSON copy should include the editable style");
 assert.match(source, /id: "lot-line-width"[\s\S]*?step: "0\.001"/, "Lot line width should have a fine numeric editor");
 assert.match(source, /id: "lot-line-height"[\s\S]*?step: "0\.001"/, "Lot line height should have a fine numeric editor");
+assert.match(source, /id: "lot-line-opacity"[\s\S]*?type: "range"[\s\S]*?min: "0\.1"[\s\S]*?max: "1"[\s\S]*?step: "0\.01"/, "Lot line opacity should have a fine slider editor");
 assert.doesNotMatch(source, /id: "lot-line-thickness"/, "Lot lines should expose width and height controls instead of one thickness control");
 assert.match(source, /const \[lotLineColorText, setLotLineColorText\]/, "Lot line color text input should allow typing partial hex values");
 assert.match(source, /id: "lot-line-color-hex"[\s\S]*?value: lotLineColorText/, "Lot line color should have a hex text editor");
@@ -147,6 +148,10 @@ assert.match(bridgeSource, /window\.__sogsLotLineStyle = normalizeLotLineStyle\(
 assert.match(bridgeSource, /function parseHexColor\(hex\)/, "Iframe lot line renderer should parse hex colors");
 assert.match(bridgeSource, /width: normalizeLotLineDimension\(style\?\.width, fallbackWidth\)/, "Iframe lot line style should normalize width");
 assert.match(bridgeSource, /height: normalizeLotLineDimension\(style\?\.height, fallbackHeight\)/, "Iframe lot line style should normalize height");
+assert.match(bridgeSource, /opacity: normalizeLotLineOpacity\(style\?\.opacity\)/, "Iframe lot line style should normalize opacity");
+assert.match(bridgeSource, /m\.opacity = style\.opacity;/, "Iframe lot line material should apply requested opacity");
+assert.match(bridgeSource, /m\.blendType = LOT_LINE_BLEND_NORMAL;/, "Iframe lot line material should enable alpha blending for opacity");
+assert.match(bridgeSource, /m\.depthWrite = style\.opacity >= 0\.99;/, "Iframe lot line material should avoid depth-writing while semi-transparent");
 assert.match(bridgeSource, /function stableLotLineRotation\(dir\)/, "Iframe lot line renderer should lock oval roll to world-up instead of per-segment arbitrary roll");
 assert.match(bridgeSource, /ent\.setLocalRotation\(stableLotLineRotation\(dir\)\)/, "Iframe lot line renderer should use the stable world-up lot line rotation");
 assert.doesNotMatch(bridgeSource, /setFromDirections\(LOCAL_Y, dir\)/, "Lot line segments should not use setFromDirections because it leaves oval roll unconstrained");

@@ -7523,7 +7523,7 @@ var CANYON_VISTA_CAMERA_WORLD_BOUNDS = {
   yMin: 0,
   maxRadiusFromOrigin: 50
 };
-var DEFAULT_LOT_LINE_STYLE = { color: "#eaffdb", width: 0.01, height: 0.003 };
+var DEFAULT_LOT_LINE_STYLE = { color: "#eaffdb", width: 0.01, height: 0.003, opacity: 0.72 };
 function normalizeLotLineHex(value) {
   const raw = String(value ?? "").trim();
   const match = raw.match(/^#?([0-9a-fA-F]{6})$/);
@@ -7532,6 +7532,10 @@ function normalizeLotLineHex(value) {
 function normalizeLotLineDimension(value, fallback = DEFAULT_LOT_LINE_STYLE.width) {
   const n = Number(value);
   return Number.isFinite(n) ? Math.max(1e-3, Math.min(0.08, roundSplatThousandths(n))) : fallback;
+}
+function normalizeLotLineOpacity(value, fallback = DEFAULT_LOT_LINE_STYLE.opacity) {
+  const n = Number(value);
+  return Number.isFinite(n) ? Math.max(0.1, Math.min(1, Math.round(n * 100) / 100)) : fallback;
 }
 
 // lib/canyon-vista/canyonVistaOverlays.ts
@@ -16082,6 +16086,12 @@ function SogsMigratedViewer({
               /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("label", { htmlFor: "lot-line-height", children: "Height" }),
               /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("input", { id: "lot-line-height", "data-testid": "lot-line-height", type: "number", min: "0.001", max: "0.08", step: "0.001", disabled: toggleDisabled, value: lotLineStyle.height, onChange: (e) => {
                 setLotLineStyle((style) => ({ ...style, height: normalizeLotLineDimension(e.target.value, style.height) }));
+              } })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "lot-editor-field", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("label", { htmlFor: "lot-line-opacity", children: `Opacity ${Math.round(lotLineStyle.opacity * 100)}%` }),
+              /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("input", { id: "lot-line-opacity", "data-testid": "lot-line-opacity", type: "range", min: "0.1", max: "1", step: "0.01", disabled: toggleDisabled, value: lotLineStyle.opacity, onChange: (e) => {
+                setLotLineStyle((style) => ({ ...style, opacity: normalizeLotLineOpacity(e.target.value, style.opacity) }));
               } })
             ] }),
             /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "lot-editor-field lot-editor-field-color", children: [
