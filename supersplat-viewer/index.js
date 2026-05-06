@@ -102487,5 +102487,5 @@ const main = (app, camera, settingsJson, config) => {
     return viewer;
 };
 
-window.__sogsPc = { Entity, Mesh, MeshInstance, StandardMaterial, Color, CylinderGeometry, SphereGeometry, Vec3, Quat };
+window.__sogsPc = { Entity, Mesh, MeshInstance, StandardMaterial, Color, CylinderGeometry, Vec3, Quat };
 export { main };

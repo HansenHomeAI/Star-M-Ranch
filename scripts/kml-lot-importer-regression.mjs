@@ -4,7 +4,6 @@ import vm from "node:vm";
 
 const source = fs.readFileSync(new URL("../3d/index.js", import.meta.url), "utf8");
 const bridgeSource = fs.readFileSync(new URL("../supersplat-viewer/sogs-bridge.mjs", import.meta.url), "utf8");
-const viewerSource = fs.readFileSync(new URL("../supersplat-viewer/index.js", import.meta.url), "utf8");
 const start = source.indexOf("var DEFAULT_KML_LOT_TRANSFORM");
 const end = source.indexOf("var CANYON_VISTA_SOLD_HOTSPOTS");
 
@@ -178,8 +177,8 @@ assert.match(bridgeSource, /function stableLotLineRotation\(dir\)/, "Iframe lot 
 assert.match(bridgeSource, /ent\.setLocalRotation\(stableLotLineRotation\(dir\)\)/, "Iframe lot line renderer should use the stable world-up lot line rotation");
 assert.doesNotMatch(bridgeSource, /setFromDirections\(LOCAL_Y, dir\)/, "Lot line segments should not use setFromDirections because it leaves oval roll unconstrained");
 assert.match(bridgeSource, /ent\.setLocalScale\(style\.width, len, style\.height\)/, "Iframe lot line renderer should apply an oval cross-section using editable width and height");
-assert.match(bridgeSource, /SphereGeometry/, "Iframe lot line renderer should have sphere geometry available for rounded vertex joins");
-assert.match(viewerSource, /window\.__sogsPc = \{[^}]*SphereGeometry[^}]*\};/, "Bundled viewer should export SphereGeometry to the SOGS bridge");
+assert.doesNotMatch(bridgeSource, /SphereGeometry/, "Lot vertex caps should not require changing the bundled viewer export surface");
+assert.match(bridgeSource, /function buildUnitLotVertexGeometry\(\)/, "Iframe lot line renderer should build local rounded vertex geometry for joins");
 assert.match(bridgeSource, /function buildUnitLotVertexMesh\(app\)/, "Iframe lot line renderer should build vertex cap geometry for rounded joins");
 assert.match(bridgeSource, /new Entity\(`lotLineVertex:\$\{dot\.name\}`/, "Iframe lot line renderer should create a cap at every lot vertex");
 assert.match(bridgeSource, /ent\.setLocalScale\(style\.width, style\.height, style\.width\)/, "Lot vertex caps should use a top-down circular width and vertical height matching the lot line style");

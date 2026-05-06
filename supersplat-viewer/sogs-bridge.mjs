@@ -4,7 +4,7 @@
  */
 import { main } from "./index.js";
 
-const { Color, CylinderGeometry, Entity, Mesh, MeshInstance, Quat, SphereGeometry, StandardMaterial, Vec3 } = window.__sogsPc;
+const { Color, CylinderGeometry, Entity, Mesh, MeshInstance, Quat, StandardMaterial, Vec3 } = window.__sogsPc;
 
 /** Parent-driven camera (position + look-at). When `sogs:cameraMode` is `scripted`, orbit input is skipped. */
 const tmpFrom = new Vec3();
@@ -512,14 +512,43 @@ function buildUnitCylinderMesh(app, radius = 1) {
   return Mesh.fromGeometry(device, geom);
 }
 
+function buildUnitLotVertexGeometry() {
+  const latitudeBands = 16;
+  const longitudeBands = 16;
+  const positions = [];
+  const normals = [];
+  const uvs = [];
+  const indices = [];
+  for (let lat = 0; lat <= latitudeBands; lat++) {
+    const theta = lat * Math.PI / latitudeBands;
+    const sinTheta = Math.sin(theta);
+    const cosTheta = Math.cos(theta);
+    for (let lon = 0; lon <= longitudeBands; lon++) {
+      const phi = lon * 2 * Math.PI / longitudeBands - Math.PI / 2;
+      const sinPhi = Math.sin(phi);
+      const cosPhi = Math.cos(phi);
+      const x = cosPhi * sinTheta;
+      const y = cosTheta;
+      const z = sinPhi * sinTheta;
+      positions.push(x, y, z);
+      normals.push(x, y, z);
+      uvs.push(1 - lon / longitudeBands, lat / latitudeBands);
+    }
+  }
+  for (let lat = 0; lat < latitudeBands; lat++) {
+    for (let lon = 0; lon < longitudeBands; lon++) {
+      const first = lat * (longitudeBands + 1) + lon;
+      const second = first + longitudeBands + 1;
+      indices.push(first + 1, second, first);
+      indices.push(first + 1, second + 1, second);
+    }
+  }
+  return { positions, normals, uvs, indices };
+}
+
 function buildUnitLotVertexMesh(app) {
   const device = app.graphicsDevice;
-  const geom = new SphereGeometry({
-    radius: 1,
-    latitudeBands: 16,
-    longitudeBands: 16,
-  });
-  return Mesh.fromGeometry(device, geom);
+  return Mesh.fromGeometry(device, buildUnitLotVertexGeometry());
 }
 
 const AXIS_CONFIGS = [
