@@ -7,7 +7,7 @@ const tapDotsOverlay = source.match(/function TapDotsOverlay\([\s\S]*?\n}\n\n\/\
 assert.ok(tapDotsOverlay, "TapDotsOverlay source block should exist");
 
 assert.match(source, /var TAP_DOT_DEFAULT_MAX_VISIBLE_DISTANCE = 1\.35;/, "Tap dots should default to a close max visible distance so zoomed-out views stay uncluttered");
-assert.match(source, /var TAP_DOT_OPACITY_ANIMATION_MS = 500;/, "Tap dots should use a fixed half-second opacity animation duration");
+assert.match(source, /var TAP_DOT_OPACITY_ANIMATION_MS = 400;/, "Tap dots should use a fixed 400ms opacity animation duration");
 assert.match(source, /function tapDotMaxVisibleDistance\(tapDot\)/, "Tap dots should resolve per-dot max visible distance");
 assert.match(source, /function tapDotTargetOpacity\(distance, minDistance, maxDistance\)/, "Tap dot distance should resolve to a binary threshold target opacity");
 assert.match(source, /function tapDotAnimatedOpacity\(current, target, deltaMs\)/, "Tap dots should smooth opacity changes with a fixed-rate helper");
@@ -40,9 +40,9 @@ assert.equal(tapDotTargetOpacity(1.21, 0.06, 1.2), 0, "Tap dot should target hid
 assert.equal(tapDotTargetOpacity(0.2, 0.06, 1.2), 1, "Tap dot opacity target should not vary based on distance while inside the threshold");
 assert.equal(tapDotTargetOpacity(0.8, 0.06, 1.2), 1, "Tap dot opacity target should stay binary while inside the threshold");
 assert.equal(tapDotAnimatedOpacity(1, 0, 0), 1, "Zero elapsed time should not change opacity");
-assert.equal(tapDotAnimatedOpacity(1, 0, 250), 0.5, "Fade-out should advance at the fixed half-second animation rate");
+assert.equal(tapDotAnimatedOpacity(1, 0, 200), 0.5, "Fade-out should advance at the fixed 400ms animation rate");
 assert.equal(tapDotAnimatedOpacity(1, 0, 1000), 0, "Long frames should clamp at the target opacity");
-assert.equal(tapDotAnimatedOpacity(0, 1, 250), 0.5, "Fade-in should use the same fixed half-second animation rate");
+assert.equal(tapDotAnimatedOpacity(0, 1, 200), 0.5, "Fade-in should use the same fixed 400ms animation rate");
 assert.equal(tapDotBlurForOpacity(0), 6, "Fully hidden tap dots should be blurred during transition");
 assert.equal(tapDotBlurForOpacity(1), 0, "Fully visible tap dots should be sharp");
 

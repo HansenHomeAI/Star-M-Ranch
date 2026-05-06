@@ -14635,7 +14635,7 @@ var import_jsx_runtime9 = __toESM(require_jsx_runtime(), 1);
 var TAPDOT_CAMERA_ICON = "https://raw.githubusercontent.com/HansenHomeAI/WhiteCameraIcon/main/3TestIcons-9.png";
 var TAP_DOT_DEFAULT_MIN_DISTANCE = 0.04;
 var TAP_DOT_DEFAULT_MAX_VISIBLE_DISTANCE = 1.35;
-var TAP_DOT_OPACITY_ANIMATION_MS = 500;
+var TAP_DOT_OPACITY_ANIMATION_MS = 400;
 function tapDotTargetOpacity(distance, minDistance, maxDistance) {
   if (!Number.isFinite(distance)) return 0;
   if (distance < minDistance || distance > maxDistance) return 0;
