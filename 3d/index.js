@@ -15272,6 +15272,7 @@ function SogsMigratedViewer({
   const [pathPlaying, setPathPlaying] = (0, import_react9.useState)(false);
   const [autoRotate, setAutoRotate] = (0, import_react9.useState)(CANYON_VISTA_ORBIT.autoRotateDefault);
   const [showTapDots, setShowTapDots] = (0, import_react9.useState)(true);
+  const [tapDotEditorOpen, setTapDotEditorOpen] = (0, import_react9.useState)(false);
   const [tapDots, setTapDots] = (0, import_react9.useState)(() => cloneTapDots());
   const [selectedTapDotCaption, setSelectedTapDotCaption] = (0, import_react9.useState)(() => CANYON_VISTA_TAP_DOTS[0]?.caption ?? "");
   const [showLotLines, setShowLotLines] = (0, import_react9.useState)(true);
@@ -15327,12 +15328,17 @@ function SogsMigratedViewer({
     setSelectedTapDotCaption(caption);
     setTapDots((dots) => dots.map((d) => d.caption === caption ? { ...d, position: { x: roundSplatThousandths(position.x), y: roundSplatThousandths(position.y), z: roundSplatThousandths(position.z) } } : d));
   }, []);
+  const updateTapDotCaption = (0, import_react9.useCallback)((caption, nextCaption) => {
+    const normalized = String(nextCaption ?? "").replace(/\s+/g, " ").trimStart();
+    setTapDots((dots) => dots.map((d) => d.caption === caption ? { ...d, caption: normalized } : d));
+    setSelectedTapDotCaption(normalized);
+  }, []);
   const updateLotDotPosition = (0, import_react9.useCallback)((name, position) => {
     setSelectedLotPointName(name);
     setLotDots((dots) => dots.map((d) => d.name === name ? { ...d, position: { x: roundSplatThousandths(position.x), y: roundSplatThousandths(position.y), z: roundSplatThousandths(position.z) } } : d));
   }, []);
   (0, import_react9.useEffect)(() => {
-    if (!developerToolsEnabled || !showTapDots || toggleDisabled) return;
+    if (!developerToolsEnabled || !tapDotEditorOpen || !showTapDots || toggleDisabled) return;
     const onTapDotKeyDown = (event) => {
       if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey) return;
       if (event.target?.closest?.("input, textarea, [contenteditable=true]")) return;
@@ -15347,7 +15353,7 @@ function SogsMigratedViewer({
     };
     window.addEventListener("keydown", onTapDotKeyDown);
     return () => window.removeEventListener("keydown", onTapDotKeyDown);
-  }, [developerToolsEnabled, showTapDots, toggleDisabled, selectedTapDot, updateTapDotPosition]);
+  }, [developerToolsEnabled, tapDotEditorOpen, showTapDots, toggleDisabled, selectedTapDot, updateTapDotPosition]);
   (0, import_react9.useEffect)(() => {
     if (!lotLineEditorOpen || !showLotLines || toggleDisabled) return;
     const onLotLineKeyDown = (event) => {
@@ -16101,7 +16107,7 @@ function SogsMigratedViewer({
         {
           enabled: viewerState === "ready" && showTapDots,
           tapDots,
-          editable: developerToolsEnabled && showTapDots,
+          editable: developerToolsEnabled && tapDotEditorOpen && showTapDots,
           selectedCaption: selectedTapDotCaption,
           onPointMove: updateTapDotPosition,
           onPointSelect: setSelectedTapDotCaption,
@@ -16219,11 +16225,16 @@ function SogsMigratedViewer({
         "button",
         {
           type: "button",
-          className: `lot-editor-toggle animation-editor-toggle-icon-only ${showTapDots ? "active" : ""}`,
-          "aria-pressed": showTapDots,
-          "aria-label": "Toggle tap labels",
+          className: `lot-editor-toggle animation-editor-toggle-icon-only ${tapDotEditorOpen ? "active" : ""}`,
+          "aria-pressed": tapDotEditorOpen,
+          "aria-expanded": tapDotEditorOpen,
+          "aria-controls": "tapDotEditorPanel",
+          "aria-label": "Toggle tap dot editor",
           disabled: toggleDisabled,
-          onClick: () => setShowTapDots((v) => !v),
+          onClick: () => {
+            setShowTapDots(true);
+            setTapDotEditorOpen((v) => !v);
+          },
           children: /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("svg", { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "1.8", strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": true, children: [
             /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("path", { d: "M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" }),
             /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("circle", { cx: "12", cy: "13", r: "3.5" })
@@ -16369,6 +16380,71 @@ function SogsMigratedViewer({
         onPlayTour,
         onStopTour,
         pathPlaying
+      }
+    ) : null,
+    developerToolsEnabled ? /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)(
+      "div",
+      {
+        id: "tapDotEditorPanel",
+        className: `lot-editor-panel animation-editor-panel tap-dot-editor-panel ${tapDotEditorOpen ? "active" : ""}`,
+        "aria-live": "polite",
+        "aria-hidden": !tapDotEditorOpen,
+        "data-testid": "tap-dot-editor-panel",
+        children: [
+          /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "animation-editor-header", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", { className: "lot-editor-title", children: "Tap dots" }),
+            /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("button", { type: "button", className: "animation-editor-close", "aria-label": "Close tap dot editor", onClick: () => setTapDotEditorOpen(false), children: "\xD7" })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", { className: "lot-editor-status animation-editor-status-compact", children: toggleDisabled ? "Loading\u2026" : "Select a tap dot, drag it in the viewer, rename it, or adjust its vertical height." }),
+          /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "lot-editor-field", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("label", { htmlFor: "tap-dot-picker", children: "Tap dot" }),
+            /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(
+              "select",
+              {
+                id: "tap-dot-picker",
+                "data-testid": "tap-dot-picker",
+                value: selectedTapDot?.caption ?? "",
+                disabled: toggleDisabled,
+                onChange: (e) => setSelectedTapDotCaption(e.target.value),
+                children: tapDots.map((d, i) => /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("option", { value: d.caption, children: d.caption || `Tap dot ${i + 1}` }, `${d.caption}-${i}`))
+              }
+            )
+          ] }),
+          selectedTapDot ? /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "lot-editor-grid tap-dot-editor-grid", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "lot-editor-field", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("label", { htmlFor: "tap-dot-title", children: "Title" }),
+              /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(
+                "input",
+                {
+                  id: "tap-dot-title",
+                  "data-testid": "tap-dot-title",
+                  type: "text",
+                  disabled: toggleDisabled,
+                  value: selectedTapDot.caption,
+                  onChange: (e) => updateTapDotCaption(selectedTapDot.caption, e.target.value)
+                }
+              )
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { className: "lot-editor-field", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("label", { htmlFor: "tap-dot-y", children: "Y height" }),
+              /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(
+                "input",
+                {
+                  id: "tap-dot-y",
+                  "data-testid": "tap-dot-y",
+                  type: "number",
+                  step: "0.001",
+                  disabled: toggleDisabled,
+                  value: selectedTapDot.position.y,
+                  onChange: (e) => {
+                    const v = parseFloat(e.target.value);
+                    if (Number.isFinite(v)) updateTapDotPosition(selectedTapDot.caption, { ...selectedTapDot.position, y: v });
+                  }
+                }
+              )
+            ] })
+          ] }) : null
+        ]
       }
     ) : null,
     developerToolsEnabled ? /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)(

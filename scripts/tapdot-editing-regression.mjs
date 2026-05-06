@@ -17,8 +17,16 @@ if (!source.includes("selectedTapDotCaption")) {
   throw new Error("Tap dot editor should track the selected tap dot title.");
 }
 
+if (!source.includes("tapDotEditorOpen")) {
+  throw new Error("Tap dot editing should have its own camera-tool edit mode separate from tap-dot visibility.");
+}
+
 if (!source.includes("updateTapDotPosition")) {
   throw new Error("Tap dot editor should expose a world-position updater.");
+}
+
+if (!source.includes("updateTapDotCaption")) {
+  throw new Error("Tap dot editor should expose a title updater so the selected label can be renamed.");
 }
 
 if (!source.includes("TAP_DOT_KEYBOARD_Y_STEP")) {
@@ -41,12 +49,24 @@ if (!tapDotsOverlay.includes("onOpenPhotos(dot)") || !tapDotsOverlay.includes("i
   throw new Error("Tap dot clicks should still open photos when not in edit mode.");
 }
 
-if (!source.includes("editable: developerToolsEnabled && showTapDots")) {
-  throw new Error("The camera/tap-dot toolbar toggle should enable tap dot editing while developer tools are on.");
+if (!source.includes("editable: developerToolsEnabled && tapDotEditorOpen && showTapDots")) {
+  throw new Error("Tap dots should only be draggable when the camera/tap-dot editor mode is selected.");
 }
 
-if (!source.includes("if (!developerToolsEnabled || !showTapDots || toggleDisabled) return;")) {
-  throw new Error("Tap dot keyboard Y-axis controls should only run in developer tap-dot mode.");
+if (!source.includes("if (!developerToolsEnabled || !tapDotEditorOpen || !showTapDots || toggleDisabled) return;")) {
+  throw new Error("Tap dot keyboard Y-axis controls should only run while camera/tap-dot editor mode is selected.");
+}
+
+if (!source.includes('id: "tapDotEditorPanel"') || !source.includes('data-testid": "tap-dot-editor-panel"')) {
+  throw new Error("Tap dot editor mode should expose a dedicated panel for title and Y-axis controls.");
+}
+
+if (!source.includes('data-testid": "tap-dot-title"') || !source.includes('data-testid": "tap-dot-y"')) {
+  throw new Error("Tap dot editor panel should include title and Y-axis inputs for the selected tap dot.");
+}
+
+if (!source.includes("tap-dot-editor-grid") || !css.includes(".tap-dot-editor-grid")) {
+  throw new Error("Tap dot editor title/Y controls should use a dedicated grid so long titles are editable without cramped inputs.");
 }
 
 const bubbleCss = css.match(/\.tapdot-label-bubble \{[\s\S]*?\n\}/)?.[0] || "";

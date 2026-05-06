@@ -443,6 +443,13 @@
   margin-top: 8px;
   margin-bottom: 8px;
 }
+.tap-dot-editor-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 72px;
+  gap: 8px;
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
 .lot-line-color-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 30px;
