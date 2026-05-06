@@ -11,7 +11,8 @@
     "test:tapdot-editing": "node scripts/tapdot-editing-regression.mjs",
     "test:tapdot-preload": "node scripts/tapdot-preload-regression.mjs",
     "test:tapdot-jitter": "node scripts/tapdot-jitter-regression.mjs",
-    "test:tapdot-distance": "node scripts/tapdot-distance-regression.mjs"
+    "test:tapdot-distance": "node scripts/tapdot-distance-regression.mjs",
+    "test:lotline-visual": "npx --yes --package=playwright node scripts/lotline-occlusion-visual-regression.mjs"
   },
   "devDependencies": {
     "vite": "^7.1.7"
