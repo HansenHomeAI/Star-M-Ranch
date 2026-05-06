@@ -4,7 +4,7 @@
  */
 import { main } from "./index.js";
 
-const { Color, CylinderGeometry, Entity, Mesh, MeshInstance, Quat, StandardMaterial, Vec3 } = window.__sogsPc;
+const { Color, CylinderGeometry, Entity, Mesh, MeshInstance, Quat, SphereGeometry, StandardMaterial, Vec3 } = window.__sogsPc;
 
 /** Parent-driven camera (position + look-at). When `sogs:cameraMode` is `scripted`, orbit input is skipped. */
 const tmpFrom = new Vec3();
@@ -512,6 +512,16 @@ function buildUnitCylinderMesh(app, radius = 1) {
   return Mesh.fromGeometry(device, geom);
 }
 
+function buildUnitLotVertexMesh(app) {
+  const device = app.graphicsDevice;
+  const geom = new SphereGeometry({
+    radius: 1,
+    latitudeBands: 16,
+    longitudeBands: 16,
+  });
+  return Mesh.fromGeometry(device, geom);
+}
+
 const AXIS_CONFIGS = [
   { name: "sogsAxisX", ex: 0, ey: 0, ez: -90, px: AXIS_LEN / 2, py: 0, pz: 0, rgb: [0.95, 0.22, 0.18] },
   { name: "sogsAxisY", ex: 0, ey: 0, ez: 0, px: 0, py: AXIS_LEN / 2, pz: 0, rgb: [0.28, 0.92, 0.32] },
@@ -654,6 +664,7 @@ function setupSogsLotLines(app) {
 
   const style = normalizeLotLineStyle(window.__sogsLotLineStyle);
   const mesh = buildUnitCylinderMesh(app);
+  const vertexMesh = buildUnitLotVertexMesh(app);
   const mat = lotLineMaterial(style);
   const root = new Entity("sogsLotLines", app);
   app.root.addChild(root);
@@ -674,6 +685,22 @@ function setupSogsLotLines(app) {
     ent.setLocalRotation(stableLotLineRotation(dir));
     ent.setLocalScale(style.width, len, style.height);
     const mi = new MeshInstance(mesh, mat, ent);
+    mi.cull = false;
+    ent.addComponent("render", {
+      meshInstances: [mi],
+      castShadows: false,
+      receiveShadows: false,
+    });
+    root.addChild(ent);
+  }
+
+  for (const dot of dots) {
+    const p = byName.get(dot?.name);
+    if (!p) continue;
+    const ent = new Entity(`lotLineVertex:${dot.name}`, app);
+    ent.setLocalPosition(p.x, p.y, p.z);
+    ent.setLocalScale(style.width, style.height, style.width);
+    const mi = new MeshInstance(vertexMesh, mat, ent);
     mi.cull = false;
     ent.addComponent("render", {
       meshInstances: [mi],
