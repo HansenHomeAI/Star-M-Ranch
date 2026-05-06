@@ -192,9 +192,10 @@ assert.match(bridgeSource, /function parseHexColor\(hex\)/, "Iframe lot line ren
 assert.match(bridgeSource, /width: normalizeLotLineDimension\(style\?\.width, fallbackWidth\)/, "Iframe lot line style should normalize width");
 assert.match(bridgeSource, /height: normalizeLotLineDimension\(style\?\.height, fallbackHeight\)/, "Iframe lot line style should normalize height");
 assert.match(bridgeSource, /opacity: normalizeLotLineOpacity\(style\?\.opacity\)/, "Iframe lot line style should normalize opacity");
-assert.match(bridgeSource, /m\.opacity = style\.opacity;/, "Iframe lot line material should apply requested opacity");
+assert.match(bridgeSource, /m\.opacity = 1;/, "Iframe lot line material should stay solid so close-up views do not show blue-noise grain");
 assert.match(bridgeSource, /m\.blendType = LOT_LINE_BLEND_NONE;/, "Iframe lot line material should render in the opaque queue so the splat can paint over it");
-assert.match(bridgeSource, /m\.opacityDither = style\.opacity < 0\.99 \? LOT_LINE_OPACITY_DITHER : "none";/, "Iframe lot line material should keep editable opacity without moving into unstable transparent sorting");
+assert.match(bridgeSource, /m\.opacityDither = "none";/, "Iframe lot line material should not use opacity dithering because it creates visible particulate grain up close");
+assert.doesNotMatch(bridgeSource, /LOT_LINE_OPACITY_DITHER|bluenoise/, "Lot line renderer should not keep the blue-noise opacity dither path");
 assert.match(bridgeSource, /m\.depthWrite = true;/, "Iframe lot line material should write depth so front splats can occlude line fragments while back splats do not paint through");
 assert.doesNotMatch(bridgeSource, /m\.depthTest = true;/, "Lot lines should not use World-layer depth testing because the transparent gsplat has no stable mesh depth for them");
 assert.doesNotMatch(bridgeSource, /m\.depthBias = LOT_LINE_DEPTH_BIAS;/, "Lot lines should not depend on depth bias; that path caused angle-dependent disappearance");

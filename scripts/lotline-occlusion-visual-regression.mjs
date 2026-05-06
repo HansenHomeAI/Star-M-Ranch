@@ -9,6 +9,13 @@ const { chromium } = require("playwright");
 const OUT_DIR = process.env.LOTLINE_VISUAL_OUT_DIR || "/tmp/meadow-lotline-occlusion";
 const URL = process.env.LOTLINE_VISUAL_URL || "http://127.0.0.1:5173/3d/?quality=lq";
 const VIEWPORT = { width: 1024, height: 768 };
+const EXPECTED_LOT_LINE_MATERIAL = {
+  blendType: 3,
+  depthWrite: true,
+  depthTest: true,
+  opacity: 1,
+  opacityDither: "none",
+};
 
 mkdirSync(OUT_DIR, { recursive: true });
 
@@ -188,6 +195,36 @@ await page.evaluate(() => {
   window.__MEADOW_LAST_LOT_LINES = win.__sogsLotLineSegments;
   window.__MEADOW_LAST_LOT_STYLE = win.__sogsLotLineStyle;
 });
+
+const materialState = await page.evaluate(() => {
+  const win = document.querySelector("iframe.sogs-migrated-iframe").contentWindow;
+  const root = win.__sogsLotLinesRoot;
+  const child = root?.children?.find((c) => c.name?.startsWith("lotLine:"));
+  const mi = child?.render?.meshInstances?.[0];
+  const mat = mi?.material;
+  return mat
+    ? {
+        blendType: mat.blendType,
+        depthWrite: mat.depthWrite,
+        depthTest: mat.depthTest,
+        opacity: mat.opacity,
+        opacityDither: mat.opacityDither,
+        layers: child.render.layers,
+      }
+    : null;
+});
+if (
+  !materialState ||
+  materialState.blendType !== EXPECTED_LOT_LINE_MATERIAL.blendType ||
+  materialState.depthWrite !== EXPECTED_LOT_LINE_MATERIAL.depthWrite ||
+  materialState.depthTest !== EXPECTED_LOT_LINE_MATERIAL.depthTest ||
+  materialState.opacity !== EXPECTED_LOT_LINE_MATERIAL.opacity ||
+  materialState.opacityDither !== EXPECTED_LOT_LINE_MATERIAL.opacityDither ||
+  !Array.isArray(materialState.layers) ||
+  materialState.layers[0] !== 0
+) {
+  throw new Error(`Unexpected lot-line material state: ${JSON.stringify(materialState)}`);
+}
 
 const results = [];
 for (const pose of poses) {

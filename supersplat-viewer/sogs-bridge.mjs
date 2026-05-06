@@ -28,12 +28,11 @@ const LOT_LINE_Y_OFFSET = 0.08;
 const LOT_LINE_BLEND_NONE = 3;
 const LOT_LINE_CULL_NONE = 0;
 const LOT_LINE_DRAW_ORDER = 0xffffff;
-const LOT_LINE_OPACITY_DITHER = "bluenoise";
 const MAIN_BOOT_TIMEOUT_MS = 60e3;
 const BRIDGE_WAIT_TIMEOUT_MS = 60e3;
 /**
  * PlayCanvas default layer ids (must match bundled engine). Lot lines render in
- * the World opaque pass with dithered opacity and depth writes. The transparent
+ * the World opaque pass with solid, depth-writing geometry. The transparent
  * gsplat then paints over line fragments that are spatially behind the splat,
  * without the unstable view-dependent sorting caused by World transparent lines.
  */
@@ -472,9 +471,9 @@ function lotLineMaterial(style = normalizeLotLineStyle()) {
   m.diffuse = new Color(rgb[0], rgb[1], rgb[2]);
   m.emissive = new Color(rgb[0], rgb[1], rgb[2]);
   m.emissiveIntensity = 0.7;
-  m.opacity = style.opacity;
+  m.opacity = 1;
   m.blendType = LOT_LINE_BLEND_NONE;
-  m.opacityDither = style.opacity < 0.99 ? LOT_LINE_OPACITY_DITHER : "none";
+  m.opacityDither = "none";
   m.depthWrite = true;
   m.cull = LOT_LINE_CULL_NONE;
   m.useLighting = false;
