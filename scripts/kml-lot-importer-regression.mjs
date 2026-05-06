@@ -3,6 +3,7 @@ import fs from "node:fs";
 import vm from "node:vm";
 
 const source = fs.readFileSync(new URL("../3d/index.js", import.meta.url), "utf8");
+const css = fs.readFileSync(new URL("../3d/index.css", import.meta.url), "utf8");
 const bridgeSource = fs.readFileSync(new URL("../supersplat-viewer/sogs-bridge.mjs", import.meta.url), "utf8");
 const start = source.indexOf("var DEFAULT_LOT_LINE_STYLE");
 const end = source.indexOf("var CANYON_VISTA_SOLD_HOTSPOTS");
@@ -151,11 +152,17 @@ assert.match(source, /var DEFAULT_INCOGNITO_KML_TRANSFORM = \{ \.\.\.DEFAULT_KML
 assert.match(source, /const transform = DEFAULT_INCOGNITO_KML_TRANSFORM;/, "Bundled Incognito KML reload should preserve the saved aligned transform");
 assert.match(source, /const \[showLotLines, setShowLotLines\] = \(0, import_react9\.useState\)\(true\);/, "Lot lines should be visible by default");
 assert.match(source, /const \[lotLineEditorOpen, setLotLineEditorOpen\] = \(0, import_react9\.useState\)\(false\);/, "Lot line editor should not open just because lot lines are visible");
-assert.match(source, /className: `lot-editor-panel animation-editor-panel lot-line-editor-panel \$\{lotLineEditorOpen \? "active" : ""\}`/, "Lot line editor panel visibility should be controlled separately from rendered lot lines");
+assert.match(source, /const \[lotLineEditorCollapsed, setLotLineEditorCollapsed\] = \(0, import_react9\.useState\)\(false\);/, "Lot line editor should support collapsing the controls while staying selected");
+assert.match(source, /className: `lot-editor-panel animation-editor-panel lot-line-editor-panel \$\{lotLineEditorOpen \? "active" : ""\} \$\{lotLineEditorCollapsed \? "lot-line-editor-panel--collapsed" : ""\}`/, "Lot line editor panel should expose a collapsed class without closing the editor");
 assert.match(source, /"aria-hidden": !lotLineEditorOpen/, "Lot line editor aria-hidden should follow the editor state");
 assert.match(source, /"aria-label": "Toggle lot line editor"/, "Toolbar button should toggle the editor, not the rendered line visibility");
+assert.match(source, /"aria-label": lotLineEditorCollapsed \? "Expand lot line editor" : "Collapse lot line editor"/, "Lot line editor header should let the user collapse or expand the controls");
+assert.match(source, /onClick: \(\) => setLotLineEditorCollapsed\(\(v\) => !v\)/, "Lot line editor collapse button should toggle collapsed state without changing editor selection");
 assert.match(source, /LotLinesOverlay[\s\S]*?enabled: viewerState === "ready" && showLotLines[\s\S]*?editable: lotLineEditorOpen/, "Lot line drag handles and add-vertex controls should only show when the lot line editor is open");
+assert.doesNotMatch(source, /editable: lotLineEditorOpen && !lotLineEditorCollapsed/, "Collapsed lot line editor should keep visual editing handles active");
 assert.doesNotMatch(source, /LotLinesOverlay[\s\S]*?enabled: viewerState === "ready" && showLotLines[\s\S]*?editable: developerToolsEnabled/, "Global dev tools should not expose lot line edit affordances unless the lot line editor is open");
+assert.match(css, /\.lot-line-editor-panel--collapsed > :not\(\.animation-editor-header\)[\s\S]*?display: none;/, "Collapsed lot line editor should hide the heavy controls to free workspace");
+assert.match(css, /\.lot-line-editor-panel--collapsed[\s\S]*?width: auto;/, "Collapsed lot line editor should shrink to a compact header");
 assert.match(source, /var LOT_LINE_KEYBOARD_Y_STEP = 0\.001;/, "Selected lot vertices should move on the Y axis in small keyboard increments");
 assert.match(source, /function getAdjacentLotVertexName\(/, "Lot line keyboard navigation should use connected neighboring vertices");
 assert.match(source, /window\.addEventListener\("keydown", onLotLineKeyDown\)/, "Lot line editor should listen for keyboard nudges while active");

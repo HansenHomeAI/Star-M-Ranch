@@ -395,6 +395,11 @@
   gap: 6px;
   margin-bottom: 2px;
 }
+.animation-editor-header-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
 .animation-editor-header .lot-editor-title {
   margin-bottom: 0;
   font-size: 13px;
@@ -428,6 +433,17 @@
 .lot-line-editor-panel {
   left: 12px;
   right: auto;
+}
+.lot-line-editor-panel--collapsed {
+  width: auto;
+  min-width: 132px;
+  max-width: min(180px, calc(100vw - 24px));
+}
+.lot-line-editor-panel--collapsed > :not(.animation-editor-header) {
+  display: none;
+}
+.lot-line-editor-panel--collapsed .animation-editor-header {
+  margin-bottom: 0;
 }
 .lot-line-editor-grid {
   display: grid;
