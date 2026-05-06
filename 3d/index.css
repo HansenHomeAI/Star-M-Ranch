@@ -746,6 +746,7 @@
   box-sizing: border-box;
   border-radius: 9999px;
   pointer-events: auto;
+  touch-action: none;
   cursor: pointer;
   border: none;
   background: rgba(255, 255, 255, 0.25);
@@ -754,6 +755,18 @@
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
   transition: none;
   will-change: transform, opacity, filter;
+}
+.tapdot-layer--editable .tapdot-label-bubble {
+  cursor: grab;
+}
+.tapdot-layer--editable .tapdot-label-bubble:active {
+  cursor: grabbing;
+}
+.tapdot-label-bubble--selected {
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.95),
+    0 0 0 5px rgba(35, 144, 255, 0.78),
+    0 2px 12px rgba(0, 0, 0, 0.25);
 }
 .tapdot-label-bubble::before {
   content: "";

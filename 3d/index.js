@@ -7675,6 +7675,13 @@ var CANYON_VISTA_TAP_DOTS = [
     ]
   }
 ];
+function cloneTapDots() {
+  return CANYON_VISTA_TAP_DOTS.map((dot) => ({
+    ...dot,
+    position: { ...dot.position },
+    photos: Array.isArray(dot.photos) ? [...dot.photos] : dot.photos
+  }));
+}
 var CANYON_VISTA_BORDER_DOTS = [
   { name: "Lot_V1", position: { x: 0.619899, y: -0.07236, z: 0.910146 } },
   { name: "Lot_V4", position: { x: 0.613988, y: -0.12955, z: -0.646242 } },
@@ -14845,6 +14852,7 @@ var TAPDOT_CAMERA_ICON = "https://raw.githubusercontent.com/HansenHomeAI/WhiteCa
 var TAP_DOT_DEFAULT_MIN_DISTANCE = 0.04;
 var TAP_DOT_DEFAULT_MAX_VISIBLE_DISTANCE = 0.95;
 var TAP_DOT_OPACITY_ANIMATION_MS = 400;
+var TAP_DOT_KEYBOARD_Y_STEP = 0.005;
 function tapDotTargetOpacity(distance, minDistance, maxDistance) {
   if (!Number.isFinite(distance)) return 0;
   if (distance < minDistance || distance > maxDistance) return 0;
@@ -14872,10 +14880,12 @@ function tapDotScreenCoord(value) {
   const n = Number(value);
   return Number.isFinite(n) ? Math.round(n * 100) / 100 : 0;
 }
-function TapDotsOverlay({ enabled, tapDots, iframeRef, containerRef, onOpenPhotos }) {
+function TapDotsOverlay({ enabled, tapDots, iframeRef, containerRef, onOpenPhotos, editable = false, selectedCaption = "", onPointMove, onPointSelect }) {
   const buttonRefs = (0, import_react7.useRef)([]);
   const opacityRefs = (0, import_react7.useRef)([]);
   const lastTickRef = (0, import_react7.useRef)(null);
+  const tapDotDragRef = (0, import_react7.useRef)(null);
+  const suppressClickRef = (0, import_react7.useRef)(false);
   (0, import_react7.useEffect)(() => {
     if (!enabled) return;
     const schedule = window.requestIdleCallback ?? ((cb) => window.setTimeout(cb, 250));
@@ -14946,13 +14956,46 @@ function TapDotsOverlay({ enabled, tapDots, iframeRef, containerRef, onOpenPhoto
   if (!enabled) {
     return null;
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("div", { className: "tapdot-layer", "aria-hidden": false, children: tapDots.map((dot, i) => {
+  const moveDraggedTapDot = (event) => {
+    const active = tapDotDragRef.current;
+    if (!editable || !active || !onPointMove) return;
+    const dot = tapDots.find((d) => d.caption === active.caption);
+    const el = event.currentTarget;
+    const screenToLotLinePoint = iframeRef.current?.contentWindow?.__sogsScreenToLotLinePoint;
+    if (!dot || !el || typeof screenToLotLinePoint !== "function") return;
+    const r = el.getBoundingClientRect();
+    const dx = event.clientX - active.startX;
+    const dy = event.clientY - active.startY;
+    if (Math.hypot(dx, dy) > 3) {
+      active.moved = true;
+      suppressClickRef.current = true;
+    }
+    const world = screenToLotLinePoint(event.clientX - r.left, event.clientY - r.top, dot.position.y);
+    if (!world) return;
+    event.preventDefault();
+    event.stopPropagation();
+    onPointMove(dot.caption, {
+      x: roundSplatThousandths(world.x),
+      y: dot.position.y,
+      z: roundSplatThousandths(world.z)
+    });
+  };
+  const finishDraggedTapDot = (event) => {
+    if (!tapDotDragRef.current) return;
+    event.preventDefault();
+    event.stopPropagation();
+    tapDotDragRef.current = null;
+  };
+  return /* @__PURE__ */ (0, import_jsx_runtime9.jsx)("div", { className: `tapdot-layer ${editable ? "tapdot-layer--editable" : ""}`, "aria-hidden": false, onPointerMove: moveDraggedTapDot, onPointerUp: finishDraggedTapDot, onPointerCancel: finishDraggedTapDot, onPointerLeave: () => {
+    tapDotDragRef.current = null;
+  }, children: tapDots.map((dot, i) => {
     const isCamera = dot.icon === "camera";
     const iconOnly = dot.icon === "info" && (!dot.photos || dot.photos.length === 0);
     const bubbleClass = [
       "tapdot-label-bubble",
       isCamera ? "has-camera" : "",
-      iconOnly ? "icon-only" : ""
+      iconOnly ? "icon-only" : "",
+      editable && selectedCaption === dot.caption ? "tapdot-label-bubble--selected" : ""
     ].filter(Boolean).join(" ");
     return /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)(
       "button",
@@ -14969,8 +15012,27 @@ function TapDotsOverlay({ enabled, tapDots, iframeRef, containerRef, onOpenPhoto
           opacity: 0,
           display: "none"
         },
-        onClick: () => onOpenPhotos(dot),
+        onPointerDown: (event) => {
+          if (!editable) return;
+          tapDotDragRef.current = { caption: dot.caption, startX: event.clientX, startY: event.clientY, moved: false };
+          suppressClickRef.current = false;
+          event.currentTarget.setPointerCapture?.(event.pointerId);
+          event.preventDefault();
+          event.stopPropagation();
+          onPointSelect?.(dot.caption);
+        },
+        onClick: (event) => {
+          if (editable) {
+            event.preventDefault();
+            event.stopPropagation();
+            suppressClickRef.current = false;
+            onPointSelect?.(dot.caption);
+            return;
+          }
+          onOpenPhotos(dot);
+        },
         "aria-label": dot.caption,
+        "aria-pressed": editable ? selectedCaption === dot.caption : void 0,
         children: [
           isCamera ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -15206,9 +15268,12 @@ function SogsMigratedViewer({
   const [iframeKey, setIframeKey] = (0, import_react9.useState)(0);
   const [viewerState, setViewerState] = (0, import_react9.useState)("idle");
   const [bootMode, setBootMode] = (0, import_react9.useState)("default");
+  const [developerToolsEnabled] = (0, import_react9.useState)(getSogsDeveloperToolsEnabled);
   const [pathPlaying, setPathPlaying] = (0, import_react9.useState)(false);
   const [autoRotate, setAutoRotate] = (0, import_react9.useState)(CANYON_VISTA_ORBIT.autoRotateDefault);
   const [showTapDots, setShowTapDots] = (0, import_react9.useState)(true);
+  const [tapDots, setTapDots] = (0, import_react9.useState)(() => cloneTapDots());
+  const [selectedTapDotCaption, setSelectedTapDotCaption] = (0, import_react9.useState)(() => CANYON_VISTA_TAP_DOTS[0]?.caption ?? "");
   const [showLotLines, setShowLotLines] = (0, import_react9.useState)(true);
   const [lotLineEditorOpen, setLotLineEditorOpen] = (0, import_react9.useState)(false);
   const [showSoldLabels, setShowSoldLabels] = (0, import_react9.useState)(false);
@@ -15256,11 +15321,33 @@ function SogsMigratedViewer({
   });
   const showWorldAxesRef = (0, import_react9.useRef)(SOGS_DEFAULT_WORLD_AXES);
   const selectedLotDot = (0, import_react9.useMemo)(() => lotDots.find((d) => d.name === selectedLotPointName) ?? lotDots[0] ?? null, [lotDots, selectedLotPointName]);
+  const selectedTapDot = (0, import_react9.useMemo)(() => tapDots.find((d) => d.caption === selectedTapDotCaption) ?? tapDots[0] ?? null, [tapDots, selectedTapDotCaption]);
   const toggleDisabled = viewerState !== "ready";
+  const updateTapDotPosition = (0, import_react9.useCallback)((caption, position) => {
+    setSelectedTapDotCaption(caption);
+    setTapDots((dots) => dots.map((d) => d.caption === caption ? { ...d, position: { x: roundSplatThousandths(position.x), y: roundSplatThousandths(position.y), z: roundSplatThousandths(position.z) } } : d));
+  }, []);
   const updateLotDotPosition = (0, import_react9.useCallback)((name, position) => {
     setSelectedLotPointName(name);
     setLotDots((dots) => dots.map((d) => d.name === name ? { ...d, position: { x: roundSplatThousandths(position.x), y: roundSplatThousandths(position.y), z: roundSplatThousandths(position.z) } } : d));
   }, []);
+  (0, import_react9.useEffect)(() => {
+    if (!developerToolsEnabled || !showTapDots || toggleDisabled) return;
+    const onTapDotKeyDown = (event) => {
+      if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey) return;
+      if (event.target?.closest?.("input, textarea, [contenteditable=true]")) return;
+      if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
+      if (!selectedTapDot) return;
+      event.preventDefault();
+      const direction = event.key === "ArrowUp" ? 1 : -1;
+      updateTapDotPosition(selectedTapDot.caption, {
+        ...selectedTapDot.position,
+        y: roundSplatThousandths(selectedTapDot.position.y + direction * TAP_DOT_KEYBOARD_Y_STEP)
+      });
+    };
+    window.addEventListener("keydown", onTapDotKeyDown);
+    return () => window.removeEventListener("keydown", onTapDotKeyDown);
+  }, [developerToolsEnabled, showTapDots, toggleDisabled, selectedTapDot, updateTapDotPosition]);
   (0, import_react9.useEffect)(() => {
     if (!lotLineEditorOpen || !showLotLines || toggleDisabled) return;
     const onLotLineKeyDown = (event) => {
@@ -15459,7 +15546,6 @@ function SogsMigratedViewer({
     orbitFocusRef.current = { x: t.x, y: t.y, z: t.z };
   }, [activeHoleView]);
   const [pickFeedbackScreen, setPickFeedbackScreen] = (0, import_react9.useState)(null);
-  const [developerToolsEnabled] = (0, import_react9.useState)(getSogsDeveloperToolsEnabled);
   const [mobileBootFallbackEnabled] = (0, import_react9.useState)(shouldUseMobileBootFallback);
   const lastRequestedUrlRef = (0, import_react9.useRef)(DEFAULT_SOGS_BUNDLE_URL);
   const fallbackAttemptedRef = (0, import_react9.useRef)(false);
@@ -16014,7 +16100,11 @@ function SogsMigratedViewer({
         TapDotsOverlay,
         {
           enabled: viewerState === "ready" && showTapDots,
-          tapDots: CANYON_VISTA_TAP_DOTS,
+          tapDots,
+          editable: developerToolsEnabled && showTapDots,
+          selectedCaption: selectedTapDotCaption,
+          onPointMove: updateTapDotPosition,
+          onPointSelect: setSelectedTapDotCaption,
           iframeRef,
           containerRef,
           onOpenPhotos: (d) => {
