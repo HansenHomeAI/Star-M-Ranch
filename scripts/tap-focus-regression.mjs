@@ -14,12 +14,12 @@ if (!pickBlock.includes("state.cameraMode = 'orbit';")) {
   throw new Error("Tap focus should force orbit mode instead of dropping picks while another camera mode is active.");
 }
 
-if (!pickBlock.includes("controllers.orbit.goto(tmpCamera, false);")) {
-  throw new Error("Tap focus should snap the orbit controller to the picked focus target instead of using slow damping.");
+if (!pickBlock.includes("controllers.orbit.goto(tmpCamera);")) {
+  throw new Error("Tap focus should smoothly pan/tilt the orbit controller to the picked focus target.");
 }
 
-if (!pickBlock.includes("target.copy(tmpCamera);") || !pickBlock.includes("this.camera.copy(tmpCamera);")) {
-  throw new Error("Tap focus should update the active camera state immediately, not wait for a smoothed controller to converge.");
+if (pickBlock.includes("target.copy(tmpCamera);") || pickBlock.includes("this.camera.copy(tmpCamera);")) {
+  throw new Error("Tap focus should not hard-snap the active camera state to the picked focus target.");
 }
 
 if (!pickBlock.includes("this.emitPickFocusScreen();")) {

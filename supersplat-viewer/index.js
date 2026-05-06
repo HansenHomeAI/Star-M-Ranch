@@ -101130,9 +101130,7 @@ class CameraManager {
             tmpCamera.look(cam.position, worldPos);
             this._pickFocusRingSeq++;
             this._pickFocusRingT = Date.now();
-            controllers.orbit.goto(tmpCamera, false);
-            target.copy(tmpCamera);
-            this.camera.copy(tmpCamera);
+            controllers.orbit.goto(tmpCamera);
             this._pickFocusWorld.set(worldPos.x, worldPos.y, worldPos.z);
             this._pickFocusFramesLeft = 75;
             this.emitPickFocusScreen();
