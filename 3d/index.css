@@ -1125,7 +1125,10 @@
 .tapdot-carousel-dots {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
+  row-gap: 8px;
+  max-width: 100%;
 }
 .tapdot-carousel-dot {
   width: 6px;
@@ -1172,6 +1175,9 @@
   position: relative;
   z-index: 1;
   padding: 0 28px 28px;
+  max-width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
 }
 .tapdot-caption {
   font-size: 17px;
@@ -1189,6 +1195,9 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
 }
 .tapdot-popup-content {
   position: relative;
