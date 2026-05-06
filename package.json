@@ -8,6 +8,7 @@
     "preview": "vite preview --host 0.0.0.0 --port 4173",
     "test:kml": "node scripts/kml-lot-importer-regression.mjs",
     "test:tapdots": "node scripts/tapdot-overlay-regression.mjs",
+    "test:tapdot-preload": "node scripts/tapdot-preload-regression.mjs",
     "test:tapdot-jitter": "node scripts/tapdot-jitter-regression.mjs",
     "test:tapdot-distance": "node scripts/tapdot-distance-regression.mjs"
   },

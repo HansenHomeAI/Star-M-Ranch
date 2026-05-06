@@ -8449,22 +8449,81 @@ function CanyonDetailsPanel({ open, onClose }) {
 var import_react4 = __toESM(require_react(), 1);
 var import_jsx_runtime5 = __toESM(require_jsx_runtime(), 1);
 var CLOSE_ICON2 = "https://raw.githubusercontent.com/HansenHomeAI/FigmaSVGButtons/main/Close2IconDefault.svg";
-var TAP_DOT_IDLE_PRELOAD_COUNT = 2;
+var TAP_DOT_IDLE_PRELOAD_COUNT = 1;
 var TAP_DOT_OPEN_PRELOAD_AHEAD = 3;
-var tapDotImagePreloadCache = /* @__PURE__ */ new Set();
-function preloadTapDotImage(url) {
-  if (!url || tapDotImagePreloadCache.has(url) || typeof Image === "undefined") return;
-  tapDotImagePreloadCache.add(url);
+var TAP_DOT_RECENT_KEEP_BEHIND = 3;
+var TAP_DOT_PRELOAD_CACHE_LIMIT = 16;
+var tapDotImagePreloadCache = /* @__PURE__ */ new Map();
+function trimTapDotPreloadCache() {
+  if (tapDotImagePreloadCache.size <= TAP_DOT_PRELOAD_CACHE_LIMIT) return;
+  const entries = Array.from(tapDotImagePreloadCache.entries()).sort((a, b) => a[1].lastUsed - b[1].lastUsed);
+  for (const [url] of entries) {
+    if (tapDotImagePreloadCache.size <= TAP_DOT_PRELOAD_CACHE_LIMIT) break;
+    tapDotImagePreloadCache.delete(url);
+  }
+}
+function isTapDotImageReady(url) {
+  return !!url && tapDotImagePreloadCache.get(url)?.status === "ready";
+}
+function preloadTapDotImage(url, priority = "auto") {
+  if (!url || typeof Image === "undefined") return Promise.resolve(false);
+  const cached = tapDotImagePreloadCache.get(url);
+  if (cached) {
+    cached.lastUsed = performance.now();
+    if (priority === "high") cached.img.fetchPriority = priority;
+    return cached.promise;
+  }
   const img = new Image();
   img.decoding = "async";
+  img.fetchPriority = priority;
+  const record = {
+    img,
+    status: "loading",
+    promise: null,
+    lastUsed: performance.now()
+  };
+  record.promise = new Promise((resolve) => {
+    const markReady = () => {
+      const decoded = typeof img.decode === "function" ? img.decode().catch(() => void 0) : Promise.resolve();
+      decoded.then(() => {
+        record.status = "ready";
+        record.lastUsed = performance.now();
+        resolve(true);
+      });
+    };
+    img.onload = markReady;
+    img.onerror = () => {
+      record.status = "error";
+      record.lastUsed = performance.now();
+      resolve(false);
+    };
+  });
+  tapDotImagePreloadCache.set(url, record);
   img.src = url;
+  if (img.complete && img.naturalWidth > 0) {
+    const decoded = typeof img.decode === "function" ? img.decode().catch(() => void 0) : Promise.resolve();
+    record.promise = decoded.then(() => {
+      record.status = "ready";
+      record.lastUsed = performance.now();
+      return true;
+    });
+  }
+  trimTapDotPreloadCache();
+  return record.promise;
 }
-function preloadTapDotImages(urls, startIdx = 0, count = TAP_DOT_OPEN_PRELOAD_AHEAD) {
-  if (!urls.length || count <= 0) return;
+function preloadTapDotImages(urls, startIdx = 0, count = TAP_DOT_OPEN_PRELOAD_AHEAD, priority = "auto") {
+  if (!urls.length || count <= 0) return [];
+  const jobs = [];
+  const seen = /* @__PURE__ */ new Set();
   for (let offset = 0; offset < count; offset++) {
     const index = (startIdx + offset) % urls.length;
-    preloadTapDotImage(urls[index]);
+    const wrappedIndex = (index + urls.length) % urls.length;
+    const url = urls[wrappedIndex];
+    if (!url || seen.has(url)) continue;
+    seen.add(url);
+    jobs.push(preloadTapDotImage(url, priority));
   }
+  return jobs;
 }
 function CanyonPhotoModal({ dot, onClose }) {
   const [idx, setIdx] = (0, import_react4.useState)(0);
@@ -8478,7 +8537,8 @@ function CanyonPhotoModal({ dot, onClose }) {
     setSpinner(false);
     setImgFade(false);
     if (!dot) return;
-    setSpinner(true);
+    const firstUrl = Array.isArray(dot.photos) && dot.photos.length ? tapDotAssetUrl(dot.photos[0]) : "";
+    setSpinner(!isTapDotImageReady(firstUrl));
     const id = requestAnimationFrame(() => setVisible(true));
     return () => cancelAnimationFrame(id);
   }, [dot]);
@@ -8493,7 +8553,9 @@ function CanyonPhotoModal({ dot, onClose }) {
   const urls = (0, import_react4.useMemo)(() => dot ? dot.photos.map(tapDotAssetUrl) : [], [dot]);
   (0, import_react4.useEffect)(() => {
     if (!dot || !urls.length) return;
-    preloadTapDotImages(urls, idx + 1, TAP_DOT_OPEN_PRELOAD_AHEAD);
+    preloadTapDotImages(urls, idx, 1, "high");
+    preloadTapDotImages(urls, idx + 1, TAP_DOT_OPEN_PRELOAD_AHEAD, "high");
+    preloadTapDotImages(urls, idx - TAP_DOT_RECENT_KEEP_BEHIND, TAP_DOT_RECENT_KEEP_BEHIND, "auto");
   }, [dot, idx, urls]);
   const src = urls[idx] ?? urls[0];
   const multi = urls.length > 1;
@@ -8502,9 +8564,13 @@ function CanyonPhotoModal({ dot, onClose }) {
       if (!urls.length) return;
       const i = (nextIdx % urls.length + urls.length) % urls.length;
       if (i === idx) return;
+      const nextReady = isTapDotImageReady(urls[i]);
       setIdx(i);
-      setImgFade(true);
-      setSpinner(true);
+      setSpinner(!nextReady);
+      setImgFade(!nextReady);
+      preloadTapDotImage(urls[i], "high");
+      preloadTapDotImages(urls, i + 1, TAP_DOT_OPEN_PRELOAD_AHEAD, "high");
+      preloadTapDotImages(urls, i - TAP_DOT_RECENT_KEEP_BEHIND, TAP_DOT_RECENT_KEEP_BEHIND, "auto");
     },
     [idx, urls]
   );
@@ -8557,6 +8623,9 @@ function CanyonPhotoModal({ dot, onClose }) {
                   alt: "",
                   className: `tapdot-photo ${imgFade ? "fade" : ""}`,
                   draggable: false,
+                  decoding: "async",
+                  loading: "eager",
+                  fetchPriority: "high",
                   onLoad: onImgLoad,
                   onError: onImgError,
                   onClick: (e) => {
@@ -14814,7 +14883,7 @@ function TapDotsOverlay({ enabled, tapDots, iframeRef, containerRef, onOpenPhoto
     const id = schedule(() => {
       for (const dot of tapDots) {
         const urls = Array.isArray(dot.photos) ? dot.photos.map(tapDotAssetUrl) : [];
-        preloadTapDotImages(urls, 0, TAP_DOT_IDLE_PRELOAD_COUNT);
+        preloadTapDotImages(urls, 0, TAP_DOT_IDLE_PRELOAD_COUNT, "auto");
       }
     });
     return () => cancel(id);
