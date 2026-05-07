@@ -7307,7 +7307,7 @@ function getSogsDeveloperToolsEnabled() {
     if (q === "1" || q === "true") return true;
   } catch {
   }
-  return true;
+  return false;
 }
 function legacyCopyTextToClipboard(text) {
   if (typeof document === "undefined" || !document.body) {
