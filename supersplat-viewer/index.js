@@ -101130,7 +101130,10 @@ class CameraManager {
             }
             const cam = this.camera;
             tmpCamera.copy(cam);
-            tmpCamera.look(cam.position, worldPos);
+            rotation.setFromEulerAngles(cam.angles).transformVector(Vec3.FORWARD, tmpv);
+            tmpCamera.position.set(worldPos.x, worldPos.y, worldPos.z).sub(tmpv.mulScalar(cam.distance));
+            tmpCamera.angles.copy(cam.angles);
+            tmpCamera.distance = cam.distance;
             this._pickFocusRingSeq++;
             this._pickFocusRingT = Date.now();
             controllers.orbit.goto(tmpCamera);

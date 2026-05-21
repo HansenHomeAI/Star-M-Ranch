@@ -15,7 +15,19 @@ if (!pickBlock.includes("state.cameraMode = 'orbit';")) {
 }
 
 if (!pickBlock.includes("controllers.orbit.goto(tmpCamera);")) {
-  throw new Error("Tap focus should smoothly pan/tilt the orbit controller to the picked focus target.");
+  throw new Error("Tap focus should smoothly pan the orbit controller to the picked focus target.");
+}
+
+if (pickBlock.includes("tmpCamera.look(cam.position, worldPos);")) {
+  throw new Error("Tap focus should not call Camera.look with the picked point because that recalculates orbit distance.");
+}
+
+if (
+  !pickBlock.includes("tmpCamera.position.set(worldPos.x, worldPos.y, worldPos.z).sub(tmpv.mulScalar(cam.distance));") ||
+  !pickBlock.includes("tmpCamera.angles.copy(cam.angles);") ||
+  !pickBlock.includes("tmpCamera.distance = cam.distance;")
+) {
+  throw new Error("Tap focus should preserve current orbit distance and angles while moving the focus point.");
 }
 
 if (pickBlock.includes("target.copy(tmpCamera);") || pickBlock.includes("this.camera.copy(tmpCamera);")) {
