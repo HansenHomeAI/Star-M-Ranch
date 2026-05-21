@@ -13,6 +13,7 @@
     "test:tapdot-jitter": "node scripts/tapdot-jitter-regression.mjs",
     "test:tapdot-distance": "node scripts/tapdot-distance-regression.mjs",
     "test:camera-boundary": "node scripts/camera-boundary-regression.mjs",
+    "test:splat-align": "node scripts/splat-align-regression.mjs",
     "test:lotline-keyboard": "npx --yes --package=playwright node scripts/lotline-keyboard-regression.mjs",
     "test:lotline-visual": "npx --yes --package=playwright node scripts/lotline-occlusion-visual-regression.mjs",
     "test:tap-focus": "node scripts/tap-focus-regression.mjs"

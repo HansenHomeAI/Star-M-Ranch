@@ -7480,7 +7480,7 @@ var CANYON_VISTA_HOLE_VIEW = {
   startPosition: { x: 0.22, y: 0.6, z: 2.75 },
   target: { x: 0, y: -0.06, z: 0 },
   minDistance: 0.65,
-  maxDistance: 50,
+  maxDistance: 1,
   minPolarAngle: 14,
   maxPolarAngle: 179,
   /** Degrees: positive Z = 0; matches Canyon-Vista `compass.northDirection`. */
@@ -7532,7 +7532,7 @@ var CANYON_VISTA_DEFAULT_PATH_CHECKPOINTS = [
 var CANYON_VISTA_CAMERA_START_Y = 0.55;
 var CANYON_VISTA_CAMERA_WORLD_BOUNDS = {
   yMin: 0,
-  maxRadiusFromOrigin: 50
+  maxRadiusFromOrigin: 1
 };
 var DEFAULT_LOT_LINE_STYLE = { color: "#eaffdb", width: 0.004, height: 0.001, opacity: 0.72 };
 function normalizeLotLineHex(value) {
@@ -17074,7 +17074,7 @@ function SogsMigratedViewer({
                 type: "button",
                 className: "lot-editor-action-btn",
                 disabled: toggleDisabled,
-                onClick: () => {
+                onClick: async () => {
                   const fov = createDefaultScenePayload().fov;
                   const payload = {
                     position: [roundSplatThousandths(splatPosition[0]), roundSplatThousandths(splatPosition[1]), roundSplatThousandths(splatPosition[2])],
@@ -17093,16 +17093,14 @@ function SogsMigratedViewer({
                     }
                   };
                   const text = JSON.stringify(payload, null, 2);
-                  void navigator.clipboard.writeText(text).then(
-                    () => {
-                      setSplatCopyFeedback("Copied");
-                      window.setTimeout(() => setSplatCopyFeedback(null), 2e3);
-                    },
-                    () => {
-                      setSplatCopyFeedback("Copy failed");
-                      window.setTimeout(() => setSplatCopyFeedback(null), 2e3);
-                    }
-                  );
+                  try {
+                    await copyTextToClipboard(text);
+                    setSplatCopyFeedback("Copied");
+                  } catch (error2) {
+                    console.error("Splat align JSON copy failed", error2);
+                    setSplatCopyFeedback("Copy failed");
+                  }
+                  window.setTimeout(() => setSplatCopyFeedback(null), 2e3);
                 },
                 children: "Copy splat align JSON"
               }
