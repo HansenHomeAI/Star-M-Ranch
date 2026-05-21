@@ -7472,7 +7472,7 @@ function normalizeBundleUrl(rawValue, options = {}) {
 var CANYON_VISTA_HOLES = [
   {
     id: "hmc",
-    label: "HMC",
+    label: "High Mountain Camp",
     bundleUrl: DEFAULT_SOGS_BUNDLE_URL
   }
 ];
@@ -8509,11 +8509,10 @@ function CanyonDetailsPanel({ open, onClose }) {
                 children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("img", { src: fullscreen ? MINIMIZE_ICON : FULLSCREEN_ICON, alt: "", draggable: false, width: 21, height: 21 })
               }
             ),
-            /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("h1", { id: "canyon-details-heading", children: "HMC" }),
-            /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("p", { children: "High Mountain Camp rendered from the newly trained HMC splat bundle." }),
-            /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("p", { children: "The local dev server proxies the KMS-encrypted S3 assets through the authenticated AWS CLI so the browser can load the bundle without direct unsigned S3 reads." }),
-            /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("p", { children: "The underlying app runtime, controls, and SOGS bridge come from the latest Meadow viewer." }),
-            /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("p", { children: "This viewer is copied from the latest Meadow runtime and points at the HMC training output." })
+            /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("h1", { id: "canyon-details-heading", children: "High Mountain Camp" }),
+            /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("p", { children: "High Mountain Camp is a 350-acre mountaintop compound in Elk Creek, Virginia, set along Bald Rock Ridge in the Blue Ridge Mountains. The property sits around 4,000 feet in elevation with long 360-degree views toward some of Virginia's highest peaks." }),
+            /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("p", { children: "Designed as a private, self-contained retreat, it includes three furnished cabins, redundant off-grid power systems, a stocked pond, extensive outbuildings, and direct access to the Jefferson National Forest and Mount Rogers recreation country." }),
+            /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("p", { children: "A helipad, 800-foot grass landing strip, and 3,000-square-foot hangar make the camp unusually accessible for such a secluded setting, while the surrounding hardwood forest, mountain laurel, trails, and open ridge-top acreage give it the feel of a true Blue Ridge base camp." })
           ] })
         }
       )
@@ -15360,7 +15359,7 @@ function SogsMigratedViewer({
   const [lotLineColorText, setLotLineColorText] = (0, import_react9.useState)(DEFAULT_LOT_LINE_STYLE.color);
   const [kmlBoundary, setKmlBoundary] = (0, import_react9.useState)(null);
   const [kmlTransform, setKmlTransform] = (0, import_react9.useState)(DEFAULT_KML_LOT_TRANSFORM);
-  const [kmlStatus, setKmlStatus] = (0, import_react9.useState)(`Loaded ${DEFAULT_LOT_DOTS.length} saved Incognito vertices.`);
+  const [kmlStatus, setKmlStatus] = (0, import_react9.useState)(`Loaded ${DEFAULT_LOT_DOTS.length} saved lot-line vertices.`);
   const [selectedLotPointName, setSelectedLotPointName] = (0, import_react9.useState)(() => createDefaultLotDots()[0]?.name ?? "");
   const [pathVersion, setPathVersion] = (0, import_react9.useState)(0);
   const [photoDot, setPhotoDot] = (0, import_react9.useState)(null);
@@ -15478,7 +15477,7 @@ function SogsMigratedViewer({
   const resetLotDots = (0, import_react9.useCallback)(() => {
     setKmlBoundary(null);
     setKmlTransform(DEFAULT_KML_LOT_TRANSFORM);
-    setKmlStatus(`Loaded ${DEFAULT_LOT_DOTS.length} saved Incognito vertices.`);
+    setKmlStatus(`Loaded ${DEFAULT_LOT_DOTS.length} saved lot-line vertices.`);
     setLotDots(createDefaultLotDots());
     setLotLines(createDefaultLotLines());
     setSelectedLotPointName(createDefaultLotDots()[0]?.name ?? "");
@@ -16179,7 +16178,7 @@ function SogsMigratedViewer({
     return () => panel.removeEventListener("wheel", onWheel, { capture: true });
   }, [developerToolsEnabled]);
   return /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("main", { className: "sogs-migrated-root", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("h1", { className: "sogs-migrated-sr-only", children: "HMC" }),
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("h1", { className: "sogs-migrated-sr-only", children: "High Mountain Camp" }),
     /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { ref: containerRef, className: "sogs-migrated-stage", children: [
       viewerSrc ? /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(
         "iframe",
@@ -17178,6 +17177,6 @@ function SogsMigratedViewer({
 var import_jsx_runtime12 = __toESM(require_jsx_runtime(), 1);
 var mountNode = document.getElementById("root");
 if (!mountNode) {
-  throw new Error("Missing #root mount for HMC.");
+  throw new Error("Missing #root mount for High Mountain Camp.");
 }
 (0, import_client.createRoot)(mountNode).render(/* @__PURE__ */ (0, import_jsx_runtime12.jsx)(SogsMigratedViewer, {}));

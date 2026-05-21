@@ -1,6 +1,6 @@
-# HMC Viewer
+# High Mountain Camp Viewer
 
-Static split-shell SOGS viewer for the HMC trained compressed bundle.
+Static split-shell SOGS viewer for the High Mountain Camp trained compressed bundle.
 
 ## Local development
 
