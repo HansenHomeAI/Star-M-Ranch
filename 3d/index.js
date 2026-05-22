@@ -7480,7 +7480,7 @@ var CANYON_VISTA_HOLE_VIEW = {
   startPosition: { x: 0.22, y: 0.6, z: 2.75 },
   target: { x: 0, y: -0.06, z: 0 },
   minDistance: 0.65,
-  maxDistance: 1.5,
+  maxDistance: 1.3,
   minPolarAngle: 14,
   maxPolarAngle: 179,
   /** Degrees: positive Z = 0; matches Canyon-Vista `compass.northDirection`. */
