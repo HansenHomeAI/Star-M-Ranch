@@ -13,6 +13,10 @@ if (!source.includes("const [tapDots, setTapDots]")) {
   throw new Error("Tap dots should be mutable state so developer edits can reposition labels.");
 }
 
+if (!source.includes("const [showTapDots, setShowTapDots] = (0, import_react9.useState)(false);")) {
+  throw new Error("Tap dot tiles should be hidden by default.");
+}
+
 if (!source.includes("selectedTapDotCaption")) {
   throw new Error("Tap dot editor should track the selected tap dot title.");
 }

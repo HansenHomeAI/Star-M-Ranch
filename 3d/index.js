@@ -15343,7 +15343,7 @@ function SogsMigratedViewer({
   const [developerToolsEnabled] = (0, import_react9.useState)(getSogsDeveloperToolsEnabled);
   const [pathPlaying, setPathPlaying] = (0, import_react9.useState)(false);
   const [autoRotate, setAutoRotate] = (0, import_react9.useState)(CANYON_VISTA_ORBIT.autoRotateDefault);
-  const [showTapDots, setShowTapDots] = (0, import_react9.useState)(true);
+  const [showTapDots, setShowTapDots] = (0, import_react9.useState)(false);
   const [tapDotEditorOpen, setTapDotEditorOpen] = (0, import_react9.useState)(false);
   const [tapDots, setTapDots] = (0, import_react9.useState)(() => cloneTapDots());
   const [selectedTapDotCaption, setSelectedTapDotCaption] = (0, import_react9.useState)(() => CANYON_VISTA_TAP_DOTS[0]?.caption ?? "");
