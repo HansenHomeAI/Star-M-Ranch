@@ -14,11 +14,11 @@ const sandbox = { console };
 vm.createContext(sandbox);
 vm.runInContext(
   `${source.slice(start, end)}
-  globalThis.__kmlLotImporter = { parseKmlLotBoundary, buildLotFromKmlBoundary, createDefaultLotDots, createDefaultLotLines, getAdjacentLotVertexName, DEFAULT_INCOGNITO_KML_BOUNDARY, DEFAULT_INCOGNITO_KML_TRANSFORM, DEFAULT_LOT_LINE_STYLE };`,
+  globalThis.__kmlLotImporter = { parseKmlLotBoundary, buildLotFromKmlBoundary, createDefaultLotDots, createDefaultLotLines, getAdjacentLotVertexName, DEFAULT_STAR_M_KML_BOUNDARY, DEFAULT_STAR_M_KML_TRANSFORM, DEFAULT_INCOGNITO_KML_BOUNDARY, DEFAULT_LOT_LINE_STYLE };`,
   sandbox
 );
 
-const { parseKmlLotBoundary, buildLotFromKmlBoundary, createDefaultLotDots, createDefaultLotLines, getAdjacentLotVertexName, DEFAULT_INCOGNITO_KML_BOUNDARY, DEFAULT_INCOGNITO_KML_TRANSFORM, DEFAULT_LOT_LINE_STYLE } = sandbox.__kmlLotImporter;
+const { parseKmlLotBoundary, buildLotFromKmlBoundary, createDefaultLotDots, createDefaultLotLines, getAdjacentLotVertexName, DEFAULT_STAR_M_KML_BOUNDARY, DEFAULT_STAR_M_KML_TRANSFORM, DEFAULT_INCOGNITO_KML_BOUNDARY, DEFAULT_LOT_LINE_STYLE } = sandbox.__kmlLotImporter;
 
 function manyLinePoints(count) {
   return Array.from({ length: count }, (_, i) => `${-111 + i * 0.00001},45.${String(i).padStart(3, "0")},0`).join(" ");
@@ -112,74 +112,27 @@ function manyLinePoints(count) {
   assert.equal(geojson.features[0].properties.apn, "OTBV-254", "Star M Ranch GeoJSON should keep the verified APN");
   assert.equal(geojson.features[0].properties.account, "0104426", "Star M Ranch GeoJSON should keep the county tax account");
   assert.equal(geojson.features[0].geometry.coordinates[0].length, 16, "Star M Ranch GeoJSON ring should be explicitly closed");
+  assert.equal(DEFAULT_STAR_M_KML_BOUNDARY.pointCount, boundary.pointCount, "Viewer default should use the verified Star M Ranch KML point count");
+  assert.deepEqual(DEFAULT_STAR_M_KML_BOUNDARY.rawPoints, boundary.rawPoints, "Viewer default Star M KML boundary should match the parser orientation");
+  assert.equal(DEFAULT_STAR_M_KML_TRANSFORM.scale, boundary.autoScale, "Viewer default Star M KML transform should use the parsed auto scale");
+
+  const defaultBuild = buildLotFromKmlBoundary(DEFAULT_STAR_M_KML_BOUNDARY, DEFAULT_STAR_M_KML_TRANSFORM);
+  const defaultDots = createDefaultLotDots();
+  const defaultLines = createDefaultLotLines();
+  assert.equal(JSON.stringify(DEFAULT_LOT_LINE_STYLE), JSON.stringify({ color: "#eaffdb", width: 0.004, height: 0.001, opacity: 0.72 }), "Default lot-line style should use the user's latest width, height, color, and opacity");
+  assert.equal(defaultDots.length, 15, "Default lot line should use the verified Star M county KML vertices");
+  assert.equal(defaultLines.length, 15, "Default lot line should use the verified Star M county KML segment graph");
+  assert.deepEqual(defaultDots, defaultBuild.dots, "Default lot line dots should be generated from the verified Star M KML boundary");
+  assert.deepEqual(defaultLines, defaultBuild.lines, "Default lot line graph should be generated from the verified Star M KML boundary");
 }
 
 {
   const kml = fs.readFileSync(new URL("../3d/assets/incognito_lot_line.kml", import.meta.url), "utf8");
   const boundary = parseKmlLotBoundary(kml, "incognito_lot_line.kml");
-  const defaultDots = createDefaultLotDots();
-  const defaultLines = createDefaultLotLines();
   assert.equal(boundary.pointCount, 17, "Incognito bundled KML should still parse as an import fixture");
   assert.equal(boundary.sourceKind, "Polygon outerBoundaryIs");
   assert.equal(DEFAULT_INCOGNITO_KML_BOUNDARY.pointCount, boundary.pointCount);
   assert.deepEqual(DEFAULT_INCOGNITO_KML_BOUNDARY.rawPoints, boundary.rawPoints, "Bundled fallback KML boundary should match the parser orientation");
-  assert.equal(JSON.stringify(DEFAULT_LOT_LINE_STYLE), JSON.stringify({ color: "#eaffdb", width: 0.004, height: 0.001, opacity: 0.72 }), "Default lot-line style should use the user's latest width, height, color, and opacity");
-  assert.equal(defaultDots.length, 25, "Default lot line should use the user's latest edited 25-vertex JSON");
-  assert.equal(defaultLines.length, 25, "Default lot line should use the user's latest edited 25-segment graph");
-  assert.equal(JSON.stringify(defaultDots.map((d) => d.position)), JSON.stringify([
-    { x: -0.378, y: -0.084, z: -0.331 },
-    { x: -0.255, y: -0.094, z: -0.387 },
-    { x: -0.146, y: -0.101, z: -0.421 },
-    { x: 0.01, y: -0.11, z: -0.451 },
-    { x: 0.201, y: -0.12, z: -0.463 },
-    { x: 0.322, y: -0.123, z: -0.451 },
-    { x: 0.515, y: -0.12, z: -0.414 },
-    { x: 0.517, y: -0.1, z: -0.177 },
-    { x: 0.5, y: -0.101, z: -0.146 },
-    { x: 0.474, y: -0.101, z: -0.133 },
-    { x: 0.353, y: -0.1, z: -0.131 },
-    { x: 0.295, y: -0.095, z: -0.105 },
-    { x: 0.274, y: -0.093, z: -0.057 },
-    { x: 0.294, y: -0.085, z: 0.034 },
-    { x: 0.383, y: -0.074, z: 0.157 },
-    { x: -0.085, y: -0.081, z: 0.067 },
-    { x: -0.117, y: -0.091, z: 0.004 },
-    { x: 0.184, y: -0.081, z: 0.121 },
-    { x: -0.022, y: -0.074, z: 0.081 },
-    { x: 0.093, y: -0.087, z: 0.104 },
-    { x: -0.25, y: -0.076, z: -0.169 },
-    { x: 0.318, y: -0.097, z: -0.123 },
-    { x: 0.274, y: -0.089, z: -0.011 },
-    { x: 0.284, y: -0.084, z: 0.139 },
-    { x: 0.334, y: -0.087, z: 0.148 }
-  ]), "Default lot line should use the user's latest copied JSON vertex positions");
-  assert.equal(JSON.stringify(defaultLines), JSON.stringify([
-    { start: "KML_V1", end: "KML_V2" },
-    { start: "KML_V2", end: "KML_V3" },
-    { start: "KML_V3", end: "KML_V4" },
-    { start: "KML_V4", end: "KML_V5" },
-    { start: "KML_V5", end: "KML_V6" },
-    { start: "KML_V6", end: "KML_V7" },
-    { start: "KML_V7", end: "KML_V8" },
-    { start: "KML_V8", end: "KML_V9" },
-    { start: "KML_V9", end: "KML_V10" },
-    { start: "KML_V10", end: "KML_V11" },
-    { start: "KML_V11", end: "KML_V22" },
-    { start: "KML_V22", end: "KML_V12" },
-    { start: "KML_V12", end: "KML_V13" },
-    { start: "KML_V13", end: "KML_V23" },
-    { start: "KML_V23", end: "KML_V14" },
-    { start: "KML_V14", end: "KML_V15" },
-    { start: "KML_V15", end: "KML_V25" },
-    { start: "KML_V25", end: "KML_V24" },
-    { start: "KML_V24", end: "KML_V18" },
-    { start: "KML_V18", end: "KML_V20" },
-    { start: "KML_V20", end: "KML_V19" },
-    { start: "KML_V19", end: "KML_V16" },
-    { start: "KML_V16", end: "KML_V17" },
-    { start: "KML_V17", end: "KML_V21" },
-    { start: "KML_V21", end: "KML_V1" }
-  ]), "Default lot line should use the user's latest copied JSON segment graph");
 }
 
 {
@@ -191,19 +144,22 @@ function manyLinePoints(count) {
   assert.equal(getAdjacentLotVertexName("missing", 1, dots, []), "KML_V1", "Keyboard selection should recover to the first vertex when the current selection is missing");
 }
 
-assert.match(source, /var DEFAULT_INCOGNITO_KML_URL = "assets\/incognito_lot_line\.kml";/, "Default Incognito KML asset path should be explicit in the app");
+assert.match(source, /var DEFAULT_STAR_M_KML_URL = "assets\/star_m_ranch_lot_line\.kml";/, "Default Star M KML asset path should be explicit in the app");
 assert.match(source, /var DEFAULT_KML_LOT_TRANSFORM = \{ x: 0, y: 0, z: 0, scale: 1, rotation: 0 \};/, "Default KML should sit high enough to be visible before manual Y adjustment");
-assert.match(source, /const \[showLotLines, setShowLotLines\] = \(0, import_react9\.useState\)\(false\);/, "Lot lines should remain hidden by default");
-assert.match(source, /const \[lotLineEditorOpen, setLotLineEditorOpen\] = \(0, import_react9\.useState\)\(false\);/, "Lot line editor should not open just because lot lines are visible");
+assert.match(source, /const \[showLotLines, setShowLotLines\] = \(0, import_react9\.useState\)\(true\);/, "Verified Star M lot lines should be visible by default");
+assert.match(source, /const \[lotLineEditorOpen, setLotLineEditorOpen\] = \(0, import_react9\.useState\)\(getSogsDeveloperToolsEnabled\);/, "Lot line editor should open automatically in dev mode so the default KML can be adjusted");
 assert.match(source, /const \[lotLineEditorCollapsed, setLotLineEditorCollapsed\] = \(0, import_react9\.useState\)\(false\);/, "Lot line editor should support collapsing the controls while staying selected");
 assert.match(source, /className: `lot-editor-panel animation-editor-panel lot-line-editor-panel \$\{lotLineEditorOpen \? "active" : ""\} \$\{lotLineEditorCollapsed \? "lot-line-editor-panel--collapsed" : ""\}`/, "Lot line editor panel should expose a collapsed class without closing the editor");
 assert.match(source, /"aria-hidden": !lotLineEditorOpen/, "Lot line editor aria-hidden should follow the editor state");
 assert.match(source, /"aria-label": "Toggle lot line editor"/, "Toolbar button should toggle the editor, not the rendered line visibility");
 assert.match(source, /"aria-label": lotLineEditorCollapsed \? "Expand lot line editor" : "Collapse lot line editor"/, "Lot line editor header should let the user collapse or expand the controls");
 assert.match(source, /onClick: \(\) => setLotLineEditorCollapsed\(\(v\) => !v\)/, "Lot line editor collapse button should toggle collapsed state without changing editor selection");
-assert.match(source, /LotLinesOverlay[\s\S]*?enabled: false[\s\S]*?editable: lotLineEditorOpen/, "Lot line drag handles and add-vertex controls should stay disabled");
+assert.match(source, /developerToolsEnabled \?[\s\S]*?className: `lot-editor-toggle animation-editor-toggle-icon-only \$\{lotLineEditorOpen \? "active" : ""\}`[\s\S]*?"aria-label": "Toggle lot line editor"/, "Developer mode should expose the lot-line editor toggle");
+assert.match(source, /developerToolsEnabled \?[\s\S]*?id: "lotLineEditorPanel"[\s\S]*?"data-testid": "lot-line-editor-panel"/, "Developer mode should expose the lot-line editor panel");
+assert.match(source, /LotLinesOverlay[\s\S]*?enabled: viewerState === "ready" && showLotLines[\s\S]*?editable: lotLineEditorOpen/, "Lot line drag handles and add-vertex controls should follow the visible Star M lot lines");
 assert.doesNotMatch(source, /editable: lotLineEditorOpen && !lotLineEditorCollapsed/, "Collapsed lot line editor should keep visual editing handles active");
 assert.doesNotMatch(source, /LotLinesOverlay[\s\S]*?enabled: viewerState === "ready" && showLotLines[\s\S]*?editable: developerToolsEnabled/, "Global dev tools should not expose lot line edit affordances unless the lot line editor is open");
+assert.match(source, /type: "sogs:lotLines"[\s\S]*?enabled: showLotLines/, "Posted lot lines should use the visible Star M lot-line state");
 assert.match(css, /\.lot-line-editor-panel--collapsed > :not\(\.animation-editor-header\)[\s\S]*?display: none;/, "Collapsed lot line editor should hide the heavy controls to free workspace");
 assert.match(css, /\.lot-line-editor-panel--collapsed[\s\S]*?width: auto;/, "Collapsed lot line editor should shrink to a compact header");
 assert.match(source, /var LOT_LINE_KEYBOARD_Y_STEP = 0\.001;/, "Selected lot vertices should move on the Y axis in small keyboard increments");

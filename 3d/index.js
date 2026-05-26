@@ -7745,66 +7745,41 @@ var CANYON_VISTA_BORDER_LINES = [
   { start: "Lot_V18", end: "Lot_V21" },
   { start: "Lot_V21", end: "Lot_V15" }
 ];
-var DEFAULT_INCOGNITO_KML_URL = "assets/incognito_lot_line.kml";
+var DEFAULT_STAR_M_KML_URL = "assets/star_m_ranch_lot_line.kml";
 var DEFAULT_KML_LOT_TRANSFORM = { x: 0, y: 0, z: 0, scale: 1, rotation: 0 };
 var LOT_LINE_KEYBOARD_Y_STEP = 0.001;
 function roundLotCoord(n) {
   return Math.round(n * 1e3) / 1e3;
 }
-var DEFAULT_LOT_DOTS = [
-  { name: "KML_V1", position: { x: -0.378, y: -0.084, z: -0.331 } },
-  { name: "KML_V2", position: { x: -0.255, y: -0.094, z: -0.387 } },
-  { name: "KML_V3", position: { x: -0.146, y: -0.101, z: -0.421 } },
-  { name: "KML_V4", position: { x: 0.01, y: -0.11, z: -0.451 } },
-  { name: "KML_V5", position: { x: 0.201, y: -0.12, z: -0.463 } },
-  { name: "KML_V6", position: { x: 0.322, y: -0.123, z: -0.451 } },
-  { name: "KML_V7", position: { x: 0.515, y: -0.12, z: -0.414 } },
-  { name: "KML_V8", position: { x: 0.517, y: -0.1, z: -0.177 } },
-  { name: "KML_V9", position: { x: 0.5, y: -0.101, z: -0.146 } },
-  { name: "KML_V10", position: { x: 0.474, y: -0.101, z: -0.133 } },
-  { name: "KML_V11", position: { x: 0.353, y: -0.1, z: -0.131 } },
-  { name: "KML_V12", position: { x: 0.295, y: -0.095, z: -0.105 } },
-  { name: "KML_V13", position: { x: 0.274, y: -0.093, z: -0.057 } },
-  { name: "KML_V14", position: { x: 0.294, y: -0.085, z: 0.034 } },
-  { name: "KML_V15", position: { x: 0.383, y: -0.074, z: 0.157 } },
-  { name: "KML_V16", position: { x: -0.085, y: -0.081, z: 0.067 } },
-  { name: "KML_V17", position: { x: -0.117, y: -0.091, z: 0.004 } },
-  { name: "KML_V18", position: { x: 0.184, y: -0.081, z: 0.121 } },
-  { name: "KML_V19", position: { x: -0.022, y: -0.074, z: 0.081 } },
-  { name: "KML_V20", position: { x: 0.093, y: -0.087, z: 0.104 } },
-  { name: "KML_V21", position: { x: -0.25, y: -0.076, z: -0.169 } },
-  { name: "KML_V22", position: { x: 0.318, y: -0.097, z: -0.123 } },
-  { name: "KML_V23", position: { x: 0.274, y: -0.089, z: -0.011 } },
-  { name: "KML_V24", position: { x: 0.284, y: -0.084, z: 0.139 } },
-  { name: "KML_V25", position: { x: 0.334, y: -0.087, z: 0.148 } }
-];
-var DEFAULT_LOT_LINES = [
-  { start: "KML_V1", end: "KML_V2" },
-  { start: "KML_V2", end: "KML_V3" },
-  { start: "KML_V3", end: "KML_V4" },
-  { start: "KML_V4", end: "KML_V5" },
-  { start: "KML_V5", end: "KML_V6" },
-  { start: "KML_V6", end: "KML_V7" },
-  { start: "KML_V7", end: "KML_V8" },
-  { start: "KML_V8", end: "KML_V9" },
-  { start: "KML_V9", end: "KML_V10" },
-  { start: "KML_V10", end: "KML_V11" },
-  { start: "KML_V11", end: "KML_V22" },
-  { start: "KML_V22", end: "KML_V12" },
-  { start: "KML_V12", end: "KML_V13" },
-  { start: "KML_V13", end: "KML_V23" },
-  { start: "KML_V23", end: "KML_V14" },
-  { start: "KML_V14", end: "KML_V15" },
-  { start: "KML_V15", end: "KML_V25" },
-  { start: "KML_V25", end: "KML_V24" },
-  { start: "KML_V24", end: "KML_V18" },
-  { start: "KML_V18", end: "KML_V20" },
-  { start: "KML_V20", end: "KML_V19" },
-  { start: "KML_V19", end: "KML_V16" },
-  { start: "KML_V16", end: "KML_V17" },
-  { start: "KML_V17", end: "KML_V21" },
-  { start: "KML_V21", end: "KML_V1" }
-];
+var DEFAULT_STAR_M_KML_BOUNDARY = {
+  fileName: "star_m_ranch_lot_line.kml",
+  rawPoints: [
+    { x: 204.41344351391243, z: 397.2416322902769 },
+    { x: 200.90856363452698, z: 1.835151021483199 },
+    { x: 203.05854970441757, z: -197.62886092309628 },
+    { x: 205.20855352208847, z: -397.0929677583064 },
+    { x: 81.14215104406813, z: -397.40812979510935 },
+    { x: -52.59629084805836, z: -399.5494440448479 },
+    { x: -166.538144095639, z: -399.55968639246663 },
+    { x: -205.20855352328755, z: -399.5627866094036 },
+    { x: -204.45474242963377, z: -54.073744398722994 },
+    { x: -204.36124566483574, z: -38.42940590142746 },
+    { x: -204.43191690157187, z: -1.4084393237671122 },
+    { x: -2.2091628699511783, z: 1.2304100306999999 },
+    { x: -1.7229700292685113, z: 57.801277604907284 },
+    { x: -0.14562123535863805, z: 211.5334379536479 },
+    { x: 0.5165181722945748, z: 399.562786610189 }
+  ],
+  autoScale: 0.002,
+  pointCount: 15,
+  sourceCenter: { lon: -111.27381208358398, lat: 40.713276283763705 },
+  sourceKind: "Polygon outerBoundaryIs",
+  sourceArea: 0.00002610376441225526
+};
+var DEFAULT_STAR_M_KML_TRANSFORM = { ...DEFAULT_KML_LOT_TRANSFORM, scale: DEFAULT_STAR_M_KML_BOUNDARY.autoScale };
+var DEFAULT_STAR_M_LOT_BUILD = buildLotFromKmlBoundary(DEFAULT_STAR_M_KML_BOUNDARY, DEFAULT_STAR_M_KML_TRANSFORM);
+var DEFAULT_LOT_DOTS = DEFAULT_STAR_M_LOT_BUILD.dots;
+var DEFAULT_LOT_LINES = DEFAULT_STAR_M_LOT_BUILD.lines;
 function createDefaultLotLines() {
   return DEFAULT_LOT_LINES.map((line) => ({ ...line }));
 }
@@ -15347,17 +15322,17 @@ function SogsMigratedViewer({
   const [tapDotEditorOpen, setTapDotEditorOpen] = (0, import_react9.useState)(false);
   const [tapDots, setTapDots] = (0, import_react9.useState)(() => cloneTapDots());
   const [selectedTapDotCaption, setSelectedTapDotCaption] = (0, import_react9.useState)(() => CANYON_VISTA_TAP_DOTS[0]?.caption ?? "");
-  const [showLotLines, setShowLotLines] = (0, import_react9.useState)(false);
-  const [lotLineEditorOpen, setLotLineEditorOpen] = (0, import_react9.useState)(false);
+  const [showLotLines, setShowLotLines] = (0, import_react9.useState)(true);
+  const [lotLineEditorOpen, setLotLineEditorOpen] = (0, import_react9.useState)(getSogsDeveloperToolsEnabled);
   const [lotLineEditorCollapsed, setLotLineEditorCollapsed] = (0, import_react9.useState)(false);
   const [showSoldLabels, setShowSoldLabels] = (0, import_react9.useState)(false);
   const [lotDots, setLotDots] = (0, import_react9.useState)(() => createDefaultLotDots());
   const [lotLines, setLotLines] = (0, import_react9.useState)(() => createDefaultLotLines());
   const [lotLineStyle, setLotLineStyle] = (0, import_react9.useState)(DEFAULT_LOT_LINE_STYLE);
   const [lotLineColorText, setLotLineColorText] = (0, import_react9.useState)(DEFAULT_LOT_LINE_STYLE.color);
-  const [kmlBoundary, setKmlBoundary] = (0, import_react9.useState)(null);
-  const [kmlTransform, setKmlTransform] = (0, import_react9.useState)(DEFAULT_KML_LOT_TRANSFORM);
-  const [kmlStatus, setKmlStatus] = (0, import_react9.useState)(`Loaded ${DEFAULT_LOT_DOTS.length} saved lot-line vertices.`);
+  const [kmlBoundary, setKmlBoundary] = (0, import_react9.useState)(DEFAULT_STAR_M_KML_BOUNDARY);
+  const [kmlTransform, setKmlTransform] = (0, import_react9.useState)(DEFAULT_STAR_M_KML_TRANSFORM);
+  const [kmlStatus, setKmlStatus] = (0, import_react9.useState)(`Loaded verified Star M Ranch KML: ${DEFAULT_STAR_M_KML_BOUNDARY.pointCount} vertices.`);
   const [selectedLotPointName, setSelectedLotPointName] = (0, import_react9.useState)(() => createDefaultLotDots()[0]?.name ?? "");
   const [pathVersion, setPathVersion] = (0, import_react9.useState)(0);
   const [photoDot, setPhotoDot] = (0, import_react9.useState)(null);
@@ -15473,12 +15448,13 @@ function SogsMigratedViewer({
     return () => window.removeEventListener("keydown", onLotLineKeyDown);
   }, [handleLotLineKeyboardKey]);
   const resetLotDots = (0, import_react9.useCallback)(() => {
-    setKmlBoundary(null);
-    setKmlTransform(DEFAULT_KML_LOT_TRANSFORM);
-    setKmlStatus(`Loaded ${DEFAULT_LOT_DOTS.length} saved lot-line vertices.`);
+    setKmlBoundary(DEFAULT_STAR_M_KML_BOUNDARY);
+    setKmlTransform(DEFAULT_STAR_M_KML_TRANSFORM);
+    setKmlStatus(`Loaded verified Star M Ranch KML: ${DEFAULT_STAR_M_KML_BOUNDARY.pointCount} vertices.`);
     setLotDots(createDefaultLotDots());
     setLotLines(createDefaultLotLines());
     setSelectedLotPointName(createDefaultLotDots()[0]?.name ?? "");
+    setShowLotLines(true);
   }, []);
   const importLotLinesKml = (0, import_react9.useCallback)(async (event) => {
     const file = event.target.files?.[0];
@@ -15944,7 +15920,7 @@ function SogsMigratedViewer({
     postToWindow(iframeRef.current?.contentWindow, {
       style: lotLineStyle,
       type: "sogs:lotLines",
-      enabled: false,
+      enabled: showLotLines,
       dots: lotDots,
       lines: lotLines
     });
@@ -16226,7 +16202,7 @@ function SogsMigratedViewer({
       /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(
         LotLinesOverlay,
         {
-          enabled: false,
+          enabled: viewerState === "ready" && showLotLines,
           borderDots: lotDots,
           borderLines: lotLines,
           editable: lotLineEditorOpen,
@@ -16304,7 +16280,7 @@ function SogsMigratedViewer({
           ] })
         }
       ) }),
-      false ? /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", { className: "lot-editor-toggle-wrap", children: /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(
+      developerToolsEnabled ? /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("div", { className: "lot-editor-toggle-wrap", children: /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(
         "button",
         {
           type: "button",
@@ -16574,7 +16550,7 @@ function SogsMigratedViewer({
         ]
       }
     ) : null,
-    false ? /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)(
+    developerToolsEnabled ? /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)(
       "div",
       {
         id: "lotLineEditorPanel",
