@@ -16,6 +16,7 @@
     "test:splat-align": "node scripts/splat-align-regression.mjs",
     "test:lotline-keyboard": "npx --yes --package=playwright node scripts/lotline-keyboard-regression.mjs",
     "test:lotline-visual": "npx --yes --package=playwright node scripts/lotline-occlusion-visual-regression.mjs",
+    "test:lotline-converter": "node scripts/lot-line-converter-regression.mjs",
     "test:tap-focus": "node scripts/tap-focus-regression.mjs",
     "test:path-copy": "node scripts/path-copy-regression.mjs"
   },

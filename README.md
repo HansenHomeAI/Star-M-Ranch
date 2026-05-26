@@ -15,6 +15,10 @@ The Vite dev server serves the repo root (default **5173**; if that port is busy
 
 Developer tools in the shell (splat position/rotation helpers) are hidden by default. Add `?dev=1` to the URL to show them.
 
+## Lot-line converter page
+
+The hidden converter route lives at `/lot-line-converter/`. It vendors the `HansenHomeAI/primary-lot-line-converter` reference project under `tools/primary-lot-line-converter` and adds a static browser-side page for highlighted lot-line screenshots. The page exports image-derived KML, GeoJSON, and metadata using `relative_0_0` coordinates, plus a direct verified Star M Ranch KML/GeoJSON shortcut from the county parcel data.
+
 ## Lot-line data
 
 The verified Star M Ranch parcel boundary is bundled in both formats:

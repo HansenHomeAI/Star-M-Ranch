@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <title>Lot Line Converter</title>
+    <meta
+      name="description"
+      content="Upload highlighted lot-line imagery and export KML or GeoJSON."
+    />
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="converter-shell">
+      <header class="converter-toolbar">
+        <a class="home-link" href="../3d/" aria-label="Back to Star M Ranch viewer">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M15 18 9 12l6-6" />
+          </svg>
+        </a>
+
+        <div class="mode-toggle" aria-label="Extraction mode">
+          <button class="selected" type="button" data-mode="lot">Lot Lines</button>
+          <button type="button" data-mode="room">Room Lines</button>
+        </div>
+
+        <label class="upload-control">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 3v12m0-12 4 4m-4-4-4 4M5 21h14" />
+          </svg>
+          <span id="uploadLabel">Upload Image</span>
+          <input id="fileInput" type="file" accept="image/*" />
+        </label>
+
+        <button class="tool-button" type="button" id="sampleButton">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 4h16v16H4zM8 12l2.5-2.5L14 13l2-2 3 4" />
+          </svg>
+          Star M KML
+        </button>
+
+        <div class="status-strip" aria-live="polite">
+          <span id="statusBadge" class="status-badge">Ready</span>
+          <span id="statusText" class="status-text">No image loaded</span>
+        </div>
+      </header>
+
+      <section class="converter-workspace">
+        <div class="preview-surface">
+          <canvas id="previewCanvas" aria-label="Detected lot line preview"></canvas>
+          <div id="emptyState" class="empty-state">Drop an image anywhere on this page</div>
+        </div>
+
+        <aside class="export-panel">
+          <div class="export-heading">
+            <h1>Lot Line Converter</h1>
+            <span id="sourceRepo">HansenHomeAI/primary-lot-line-converter</span>
+          </div>
+
+          <dl class="metrics-grid">
+            <div>
+              <dt>Mode</dt>
+              <dd id="modeMetric">Lot Lines</dd>
+            </div>
+            <div>
+              <dt>Vertices</dt>
+              <dd id="vertexMetric">0</dd>
+            </div>
+            <div>
+              <dt>Confidence</dt>
+              <dd id="confidenceMetric">0%</dd>
+            </div>
+            <div>
+              <dt>Georef</dt>
+              <dd id="georefMetric">relative_0_0</dd>
+            </div>
+          </dl>
+
+          <div class="export-actions">
+            <button class="tool-button primary" type="button" id="downloadKml" disabled>
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 3v10m0 0 4-4m-4 4-4-4M5 19h14" />
+              </svg>
+              KML
+            </button>
+            <button class="tool-button" type="button" id="downloadGeojson" disabled>
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M6 3h8l4 4v14H6zM14 3v5h5" />
+              </svg>
+              GeoJSON
+            </button>
+            <button class="tool-button" type="button" id="downloadMetadata" disabled>
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M8 7h8M8 12h8M8 17h5" />
+              </svg>
+              Metadata
+            </button>
+          </div>
+
+          <textarea id="outputText" readonly spellcheck="false" aria-label="Generated KML"></textarea>
+        </aside>
+      </section>
+    </main>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
