@@ -1,0 +1,12 @@
+{
+  "source_image": "lot-line-converter/fixtures/star-m-ranch-highlighted-lot-lines.png",
+  "source_image_sha256": "274919d326c265ef79d9b534ef9334507c5f32928bc32220c05a66b476550ae5",
+  "detector_page": "/lot-line-converter/",
+  "result": {
+    "badge": "Detected",
+    "status": "star-m-ranch-highlighted-lot-lines.png",
+    "vertices": "12",
+    "confidence": "84%"
+  },
+  "note": "Image-derived KML uses relative_0_0 coordinates. Use star-m-ranch-verified-county-lot-lines.kml for exact GIS geometry."
+}

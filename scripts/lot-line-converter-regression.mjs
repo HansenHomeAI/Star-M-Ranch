@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
 
 import {
   buildGeojson,
@@ -9,6 +10,16 @@ import {
   isRoomLinePixel,
   pixelPolygonToRelativeLonLat
 } from "../lot-line-converter/app.js";
+
+const pageHtml = fs.readFileSync(new URL("../lot-line-converter/index.html", import.meta.url), "utf8");
+const pageSource = fs.readFileSync(new URL("../lot-line-converter/app.js", import.meta.url), "utf8");
+
+assert.match(pageHtml, /id="imageSampleButton"/, "Converter page should expose the built-in Star M image sample");
+assert.match(pageSource, /star-m-ranch-highlighted-lot-lines\.png/, "Converter should load the bundled highlighted Star M image");
+assert.ok(
+  fs.existsSync(new URL("../lot-line-converter/outputs/star-m-ranch-verified-county-lot-lines.kml", import.meta.url)),
+  "Verified Star M county KML output should be present"
+);
 
 function makeSyntheticLotImage(width = 240, height = 200) {
   const data = new Uint8ClampedArray(width * height * 4);

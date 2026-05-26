@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Detected Lot Boundary</name>
+    <Style id="primaryLotStyle">
+      <LineStyle><color>ff1d22e8</color><width>4</width></LineStyle>
+      <PolyStyle><color>331d22e8</color></PolyStyle>
+    </Style>
+    <Placemark>
+      <name>Detected Lot Boundary</name>
+      <description>Primary lot boundary. Georef mode: relative_0_0.</description>
+      <ExtendedData>
+        <Data name="confidence"><value>0.8355</value></Data>
+        <Data name="georef_mode"><value>relative_0_0</value></Data>
+        <Data name="source"><value>static_browser_highlight_detector</value></Data>
+        <Data name="warnings"><value>World coordinates were not recovered from the image; exports use relative_0_0 coordinates.</value></Data>
+      </ExtendedData>
+      <styleUrl>#primaryLotStyle</styleUrl>
+      <Polygon>
+        <tessellate>1</tessellate>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>-0.0025285714,0.0049357143,0 -0.0026142857,0.0048928571,0 -0.0026214286,0.0041214286,0 0.0021000000,0.0041071429,0 0.0021000000,0.0012928571,0 -0.0026214286,0.0012785714,0 -0.0026285714,0.0007500000,0 -0.0026000000,0.0005928571,0 -0.0003500000,0.0005857143,0 -0.0003642857,-0.0040714286,0 0.0021785714,-0.0041000000,0 0.0021928571,0.0048928571,0 -0.0025285714,0.0049357143,0</coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+  </Document>
+</kml>

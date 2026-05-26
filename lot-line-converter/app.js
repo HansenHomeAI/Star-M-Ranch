@@ -1,5 +1,6 @@
 const MAX_CANVAS_SIDE = 1400;
 const RELATIVE_SPAN_DEGREES = 0.01;
+const STAR_M_HIGHLIGHTED_URL = "./fixtures/star-m-ranch-highlighted-lot-lines.png";
 const STAR_M_KML_URL = "../3d/assets/star_m_ranch_lot_line.kml";
 const STAR_M_GEOJSON_URL = "../3d/assets/star_m_ranch_lot_line.geojson";
 
@@ -359,6 +360,7 @@ function initConverter() {
   const downloadGeojson = document.getElementById("downloadGeojson");
   const downloadMetadata = document.getElementById("downloadMetadata");
   const sampleButton = document.getElementById("sampleButton");
+  const imageSampleButton = document.getElementById("imageSampleButton");
 
   function setStatus(kind, badge, text) {
     statusBadge.className = `status-badge ${kind || ""}`.trim();
@@ -490,6 +492,13 @@ function initConverter() {
     updateDownloadState(true);
   }
 
+  async function loadHighlightedStarMImage() {
+    const response = await fetch(STAR_M_HIGHLIGHTED_URL);
+    const blob = await response.blob();
+    const file = new File([blob], "star-m-ranch-highlighted-lot-lines.png", { type: blob.type || "image/png" });
+    await loadFile(file);
+  }
+
   fileInput.addEventListener("change", () => {
     const file = fileInput.files?.item(0);
     if (file) void loadFile(file);
@@ -498,6 +507,7 @@ function initConverter() {
   downloadGeojson.addEventListener("click", () => download("geojson"));
   downloadMetadata.addEventListener("click", () => download("metadata"));
   sampleButton.addEventListener("click", () => void loadVerifiedStarM());
+  imageSampleButton.addEventListener("click", () => void loadHighlightedStarMImage());
   for (const button of document.querySelectorAll("[data-mode]")) {
     button.addEventListener("click", () => setMode(button.dataset.mode));
   }
