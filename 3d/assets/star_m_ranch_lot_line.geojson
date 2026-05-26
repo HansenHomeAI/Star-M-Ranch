@@ -1,0 +1,46 @@
+{
+  "type": "FeatureCollection",
+  "name": "Star M Ranch Parcel Boundary",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "property_name": "Star M Ranch",
+        "apn": "OTBV-254",
+        "account": "0104426",
+        "situs": "389 E BOULDERVILLE RD",
+        "acres": 60.40999985,
+        "source_name": "Summit County GIS ParcelQuery",
+        "source_layer": "Maps/ParcelQuery/MapServer/0",
+        "source_query": "OwnershipTable_SERIAL='OTBV-254'",
+        "source_url": "https://maps.summitcounty.org/arcgis/rest/services/Maps/ParcelQuery/MapServer/0/query?where=OwnershipTable_SERIAL%3D%27OTBV-254%27&outFields=OBJECTID%2CParcels_GISID%2COwnershipTable_SERIAL%2COwnershipTable_ACRES%2COwnershipTable_SITUS%2CTXTACCOUNT%2CTaxRecord%2CSHAPE_Length%2CSHAPE_Area&returnGeometry=true&outSR=4326&f=geojson",
+        "tax_record": "https://property.summitcounty.org/eaglesoftware/taxweb/account.jsp?guest=true&accountNum=0104426",
+        "shape_length": 7926.247517300307,
+        "shape_area": 2636513.661928152
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-111.27138951172481, 40.709682637732492],
+            [-111.27143104922459, 40.713259682071815],
+            [-111.27140556902299, 40.715064133057382],
+            [-111.27138008861105, 40.716868584901377],
+            [-111.27285044090367, 40.716871436014429],
+            [-111.2744354197595, 40.716890807411659],
+            [-111.27578578264422, 40.716890900069046],
+            [-111.27624407855691, 40.716890928115156],
+            [-111.27623514489036, 40.713765461838598],
+            [-111.27623403682904, 40.71362393534595],
+            [-111.27623487437742, 40.713289025208645],
+            [-111.27383826510956, 40.713265152860586],
+            [-111.27383250307614, 40.712753384563371],
+            [-111.27381380938978, 40.711362646727757],
+            [-111.27380596215494, 40.709661639412246],
+            [-111.27138951172481, 40.709682637732492]
+          ]
+        ]
+      }
+    }
+  ]
+}

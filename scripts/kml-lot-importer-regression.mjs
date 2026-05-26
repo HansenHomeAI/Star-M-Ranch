@@ -102,6 +102,19 @@ function manyLinePoints(count) {
 }
 
 {
+  const kml = fs.readFileSync(new URL("../3d/assets/star_m_ranch_lot_line.kml", import.meta.url), "utf8");
+  const boundary = parseKmlLotBoundary(kml, "star_m_ranch_lot_line.kml");
+  const geojson = JSON.parse(fs.readFileSync(new URL("../3d/assets/star_m_ranch_lot_line.geojson", import.meta.url), "utf8"));
+  assert.equal(boundary.pointCount, 15, "Star M Ranch bundled county parcel should parse as a 15-vertex boundary");
+  assert.equal(boundary.sourceKind, "Polygon outerBoundaryIs");
+  assert.equal(Math.round(boundary.sourceCenter.lon * 1e6) / 1e6, -111.273812, "Star M Ranch KML center longitude should match the county parcel");
+  assert.equal(Math.round(boundary.sourceCenter.lat * 1e6) / 1e6, 40.713276, "Star M Ranch KML center latitude should match the county parcel");
+  assert.equal(geojson.features[0].properties.apn, "OTBV-254", "Star M Ranch GeoJSON should keep the verified APN");
+  assert.equal(geojson.features[0].properties.account, "0104426", "Star M Ranch GeoJSON should keep the county tax account");
+  assert.equal(geojson.features[0].geometry.coordinates[0].length, 16, "Star M Ranch GeoJSON ring should be explicitly closed");
+}
+
+{
   const kml = fs.readFileSync(new URL("../3d/assets/incognito_lot_line.kml", import.meta.url), "utf8");
   const boundary = parseKmlLotBoundary(kml, "incognito_lot_line.kml");
   const defaultDots = createDefaultLotDots();

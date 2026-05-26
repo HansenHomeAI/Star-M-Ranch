@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Star M Ranch Parcel Boundary</name>
+    <description>Verified Summit County parcel boundary for Star M Ranch, APN OTBV-254, 389 E Boulderville Rd, Oakley, UT 84055. Source: Summit County GIS ParcelQuery MapServer layer 0, queried by OwnershipTable_SERIAL='OTBV-254'.</description>
+    <Style id="starMRanchParcelStyle">
+      <LineStyle><color>ff0000ff</color><width>4</width></LineStyle>
+      <PolyStyle><color>220000ff</color></PolyStyle>
+    </Style>
+    <Placemark>
+      <name>Star M Ranch - OTBV-254</name>
+      <description>Official county GIS parcel polygon. Account 0104426. Acres 60.41. Situs 389 E BOULDERVILLE RD.</description>
+      <ExtendedData>
+        <Data name="property_name"><value>Star M Ranch</value></Data>
+        <Data name="apn"><value>OTBV-254</value></Data>
+        <Data name="account"><value>0104426</value></Data>
+        <Data name="situs"><value>389 E BOULDERVILLE RD</value></Data>
+        <Data name="acres"><value>60.41</value></Data>
+        <Data name="source"><value>Summit County GIS ParcelQuery MapServer layer 0</value></Data>
+        <Data name="source_query"><value>OwnershipTable_SERIAL='OTBV-254'</value></Data>
+        <Data name="coordinate_order"><value>longitude,latitude,altitude</value></Data>
+      </ExtendedData>
+      <styleUrl>#starMRanchParcelStyle</styleUrl>
+      <Polygon>
+        <tessellate>1</tessellate>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>
+              -111.27138951172481,40.709682637732492,0
+              -111.27143104922459,40.713259682071815,0
+              -111.27140556902299,40.715064133057382,0
+              -111.27138008861105,40.716868584901377,0
+              -111.27285044090367,40.716871436014429,0
+              -111.2744354197595,40.716890807411659,0
+              -111.27578578264422,40.716890900069046,0
+              -111.27624407855691,40.716890928115156,0
+              -111.27623514489036,40.713765461838598,0
+              -111.27623403682904,40.71362393534595,0
+              -111.27623487437742,40.713289025208645,0
+              -111.27383826510956,40.713265152860586,0
+              -111.27383250307614,40.712753384563371,0
+              -111.27381380938978,40.711362646727757,0
+              -111.27380596215494,40.709661639412246,0
+              -111.27138951172481,40.709682637732492,0
+            </coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+  </Document>
+</kml>

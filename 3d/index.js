@@ -7388,10 +7388,10 @@ var PROXY_HOSTS = /* @__PURE__ */ new Set([
   "spaceport-ml-processing.s3.amazonaws.com",
   "spaceport-ml-processing.s3.us-west-2.amazonaws.com"
 ]);
-var STAGING_BUNDLE_PREFIX = "/compressed/hmc-mtc-20260520T2015Z/supersplat_bundle";
+var STAGING_BUNDLE_PREFIX = "/3d/star-m-ranch-sogs";
 var REMOTE_SOGS_PROXY_ORIGIN = "https://agent-40136728-montana-time.v0-spaceport-website-preview2.pages.dev";
 function getStagingAssetOrigin() {
-  return "https://spaceport-ml-processing-staging.s3.amazonaws.com";
+  return getBaseOrigin();
 }
 var DEFAULT_SOGS_BUNDLE_URL = getStagingAssetOrigin() + STAGING_BUNDLE_PREFIX + "/meta.json";
 var DEFAULT_SOGS_SKYBOX_PITCH = 0;
@@ -7472,7 +7472,7 @@ function normalizeBundleUrl(rawValue, options = {}) {
 var CANYON_VISTA_HOLES = [
   {
     id: "hmc",
-    label: "High Mountain Camp",
+    label: "Star M Ranch",
     bundleUrl: DEFAULT_SOGS_BUNDLE_URL
   }
 ];
@@ -7480,7 +7480,7 @@ var CANYON_VISTA_HOLE_VIEW = {
   startPosition: { x: 0.22, y: 0.6, z: 2.75 },
   target: { x: 0, y: -0.06, z: 0 },
   minDistance: 0.65,
-  maxDistance: 1.3,
+  maxDistance: 1,
   minPolarAngle: 14,
   maxPolarAngle: 179,
   /** Degrees: positive Z = 0; matches Canyon-Vista `compass.northDirection`. */
@@ -8507,10 +8507,10 @@ function CanyonDetailsPanel({ open, onClose }) {
                 children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("img", { src: fullscreen ? MINIMIZE_ICON : FULLSCREEN_ICON, alt: "", draggable: false, width: 21, height: 21 })
               }
             ),
-            /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("h1", { id: "canyon-details-heading", children: "High Mountain Camp" }),
-            /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("p", { children: "High Mountain Camp is a 350-acre mountaintop compound in Elk Creek, Virginia, set along Bald Rock Ridge in the Blue Ridge Mountains. The property sits around 4,000 feet in elevation with long 360-degree views toward some of Virginia's highest peaks." }),
-            /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("p", { children: "Designed as a private, self-contained retreat, it includes three furnished cabins, redundant off-grid power systems, a stocked pond, extensive outbuildings, and direct access to the Jefferson National Forest and Mount Rogers recreation country." }),
-            /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("p", { children: "A helipad, 800-foot grass landing strip, and 3,000-square-foot hangar make the camp unusually accessible for such a secluded setting, while the surrounding hardwood forest, mountain laurel, trails, and open ridge-top acreage give it the feel of a true Blue Ridge base camp." })
+            /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("h1", { id: "canyon-details-heading", children: "Star M Ranch" }),
+            /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("p", { children: "Star M Ranch is a 60-acre private estate in Oakley, Utah, where the Weber River runs through the property and a trout pond anchors open pasture, cottonwoods, and mountain views." }),
+            /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("p", { children: "The ranch includes a newly remodeled 9,571-square-foot main residence, guest housing, an artist studio near the water, horse facilities, and a 16,800-square-foot party barn with indoor recreation and gathering spaces." }),
+            /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("p", { children: "The viewer uses the latest completed AWS compressed SOGS bundle for friday-mtc-20260524T0001Z, served locally from /3d/star-m-ranch-sogs/meta.json." })
           ] })
         }
       )
@@ -16191,7 +16191,7 @@ function SogsMigratedViewer({
     return () => panel.removeEventListener("wheel", onWheel, { capture: true });
   }, [developerToolsEnabled]);
   return /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("main", { className: "sogs-migrated-root", children: [
-    /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("h1", { className: "sogs-migrated-sr-only", children: "High Mountain Camp" }),
+    /* @__PURE__ */ (0, import_jsx_runtime11.jsx)("h1", { className: "sogs-migrated-sr-only", children: "Star M Ranch" }),
     /* @__PURE__ */ (0, import_jsx_runtime11.jsxs)("div", { ref: containerRef, className: "sogs-migrated-stage", children: [
       viewerSrc ? /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(
         "iframe",
@@ -17205,6 +17205,6 @@ function SogsMigratedViewer({
 var import_jsx_runtime12 = __toESM(require_jsx_runtime(), 1);
 var mountNode = document.getElementById("root");
 if (!mountNode) {
-  throw new Error("Missing #root mount for High Mountain Camp.");
+  throw new Error("Missing #root mount for Star M Ranch.");
 }
 (0, import_client.createRoot)(mountNode).render(/* @__PURE__ */ (0, import_jsx_runtime12.jsx)(SogsMigratedViewer, {}));
