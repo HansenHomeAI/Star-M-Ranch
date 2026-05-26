@@ -7537,7 +7537,7 @@ var CANYON_VISTA_CAMERA_WORLD_BOUNDS = {
   yMin: 0.1,
   maxRadiusFromOrigin: 50
 };
-var DEFAULT_LOT_LINE_STYLE = { color: "#eaffdb", width: 0.004, height: 0.001, opacity: 0.72 };
+var DEFAULT_LOT_LINE_STYLE = { color: "#eaffdb", width: 0.002, height: 0.001, opacity: 0.72 };
 function normalizeLotLineHex(value) {
   const raw = String(value ?? "").trim();
   const match = raw.match(/^#?([0-9a-fA-F]{6})$/);
@@ -7782,7 +7782,7 @@ var DEFAULT_STAR_M_KML_BOUNDARY = {
   sourceKind: "Polygon outerBoundaryIs",
   sourceArea: 0.00002610376441225526
 };
-var DEFAULT_STAR_M_KML_TRANSFORM = { ...DEFAULT_KML_LOT_TRANSFORM, scale: DEFAULT_STAR_M_KML_BOUNDARY.autoScale };
+var DEFAULT_STAR_M_KML_TRANSFORM = { ...DEFAULT_KML_LOT_TRANSFORM, x: -0.021, y: -0.026, z: -0.16, scale: 0.00118, rotation: 135.3 };
 var DEFAULT_STAR_M_LOT_BUILD = buildLotFromKmlBoundary(DEFAULT_STAR_M_KML_BOUNDARY, DEFAULT_STAR_M_KML_TRANSFORM);
 var DEFAULT_LOT_DOTS = DEFAULT_STAR_M_LOT_BUILD.dots;
 var DEFAULT_LOT_LINES = DEFAULT_STAR_M_LOT_BUILD.lines;

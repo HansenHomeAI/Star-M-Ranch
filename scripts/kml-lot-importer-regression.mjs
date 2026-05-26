@@ -114,15 +114,36 @@ function manyLinePoints(count) {
   assert.equal(geojson.features[0].geometry.coordinates[0].length, 16, "Star M Ranch GeoJSON ring should be explicitly closed");
   assert.equal(DEFAULT_STAR_M_KML_BOUNDARY.pointCount, boundary.pointCount, "Viewer default should use the verified Star M Ranch KML point count");
   assert.deepEqual(DEFAULT_STAR_M_KML_BOUNDARY.rawPoints, boundary.rawPoints, "Viewer default Star M KML boundary should match the parser orientation");
-  assert.equal(DEFAULT_STAR_M_KML_TRANSFORM.scale, boundary.autoScale, "Viewer default Star M KML transform should use the parsed auto scale");
+  assert.equal(
+    JSON.stringify(DEFAULT_STAR_M_KML_TRANSFORM),
+    JSON.stringify({ x: -0.021, y: -0.026, z: -0.16, scale: 0.00118, rotation: 135.3 }),
+    "Viewer default Star M KML transform should use the latest manually aligned placement"
+  );
 
   const defaultBuild = buildLotFromKmlBoundary(DEFAULT_STAR_M_KML_BOUNDARY, DEFAULT_STAR_M_KML_TRANSFORM);
   const defaultDots = createDefaultLotDots();
   const defaultLines = createDefaultLotLines();
-  assert.equal(JSON.stringify(DEFAULT_LOT_LINE_STYLE), JSON.stringify({ color: "#eaffdb", width: 0.004, height: 0.001, opacity: 0.72 }), "Default lot-line style should use the user's latest width, height, color, and opacity");
+  assert.equal(JSON.stringify(DEFAULT_LOT_LINE_STYLE), JSON.stringify({ color: "#eaffdb", width: 0.002, height: 0.001, opacity: 0.72 }), "Default lot-line style should use the user's latest width, height, color, and opacity");
   assert.equal(defaultDots.length, 15, "Default lot line should use the verified Star M county KML vertices");
   assert.equal(defaultLines.length, 15, "Default lot line should use the verified Star M county KML segment graph");
   assert.deepEqual(defaultDots, defaultBuild.dots, "Default lot line dots should be generated from the verified Star M KML boundary");
+  assert.equal(JSON.stringify(defaultDots.map((dot) => dot.position)), JSON.stringify([
+    { x: -0.522, y: -0.026, z: -0.324 },
+    { x: -0.191, y: -0.026, z: 0.005 },
+    { x: -0.027, y: -0.026, z: 0.174 },
+    { x: 0.136, y: -0.026, z: 0.343 },
+    { x: 0.241, y: -0.026, z: 0.241 },
+    { x: 0.355, y: -0.026, z: 0.131 },
+    { x: 0.45, y: -0.026, z: 0.037 },
+    { x: 0.483, y: -0.026, z: 0.005 },
+    { x: 0.195, y: -0.026, z: -0.284 },
+    { x: 0.182, y: -0.026, z: -0.297 },
+    { x: 0.152, y: -0.026, z: -0.328 },
+    { x: -0.02, y: -0.026, z: -0.163 },
+    { x: -0.068, y: -0.026, z: -0.21 },
+    { x: -0.196, y: -0.026, z: -0.338 },
+    { x: -0.353, y: -0.026, z: -0.495 }
+  ]), "Default Star M lot line should use the latest manually aligned vertex positions");
   assert.deepEqual(defaultLines, defaultBuild.lines, "Default lot line graph should be generated from the verified Star M KML boundary");
 }
 
@@ -181,7 +202,7 @@ assert.match(source, /function copyTextWithLocalDevBridge\(text\)/, "Lot line JS
 assert.match(source, /fetch\("\/__meadow\/clipboard"/, "Lot line JSON copy should post to the local clipboard bridge on localhost");
 assert.match(source, /const \[lotCopyFeedback, setLotCopyFeedback\]/, "Lot line JSON copy should show success or failure feedback");
 assert.match(source, /setLotCopyFeedback\(`Copied \$\{lotDots\.length\} vertices`\)/, "Lot line JSON copy feedback should confirm the copied vertex count");
-assert.match(source, /var DEFAULT_LOT_LINE_STYLE = \{ color: "#eaffdb", width: 0\.004, height: 0\.001, opacity: 0\.72 \};/, "Lot lines should have default editable color, width, flattened height, and opacity");
+assert.match(source, /var DEFAULT_LOT_LINE_STYLE = \{ color: "#eaffdb", width: 0\.002, height: 0\.001, opacity: 0\.72 \};/, "Lot lines should have default editable color, width, flattened height, and opacity");
 assert.match(source, /borderDots: lotDots[\s\S]*?borderLines: lotLines[\s\S]*?style: lotLineStyle[\s\S]*?kmlTransform: kmlBoundary \? kmlTransform : null[\s\S]*?source: kmlBoundary \? \{ type: "kml", fileName: kmlBoundary\.fileName, coordinateMode: "relative_0_0" \}/, "Lot line JSON copy should include vertices, lines, editable style, KML transform, and source metadata");
 assert.match(source, /id: "lot-line-width"[\s\S]*?step: "0\.001"/, "Lot line width should have a fine numeric editor");
 assert.match(source, /id: "lot-line-height"[\s\S]*?step: "0\.001"/, "Lot line height should have a fine numeric editor");
