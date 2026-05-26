@@ -7388,12 +7388,18 @@ var PROXY_HOSTS = /* @__PURE__ */ new Set([
   "spaceport-ml-processing.s3.amazonaws.com",
   "spaceport-ml-processing.s3.us-west-2.amazonaws.com"
 ]);
-var STAGING_BUNDLE_PREFIX = "/3d/star-m-ranch-sogs";
+var STAGING_BUNDLE_PREFIX = "star-m-ranch-sogs";
 var REMOTE_SOGS_PROXY_ORIGIN = "https://agent-40136728-montana-time.v0-spaceport-website-preview2.pages.dev";
 function getStagingAssetOrigin() {
   return getBaseOrigin();
 }
-var DEFAULT_SOGS_BUNDLE_URL = getStagingAssetOrigin() + STAGING_BUNDLE_PREFIX + "/meta.json";
+function getStagingAssetUrl(fileName) {
+  if (typeof window !== "undefined") {
+    return new URL(`./${STAGING_BUNDLE_PREFIX}/${fileName}`, window.location.href).toString();
+  }
+  return `./${STAGING_BUNDLE_PREFIX}/${fileName}`;
+}
+var DEFAULT_SOGS_BUNDLE_URL = getStagingAssetUrl("meta.json");
 var DEFAULT_SOGS_SKYBOX_PITCH = 0;
 var DEFAULT_SOGS_SKYBOX_VOFFSET = 0;
 function skyboxUrlFromBundleMetaUrl(metaUrl) {
@@ -7405,7 +7411,7 @@ function skyboxUrlFromBundleMetaUrl(metaUrl) {
     u.pathname = u.pathname.replace(/\/meta\.json$/i, "/background_skybox.webp");
     return u.toString();
   } catch {
-    return getStagingAssetOrigin() + STAGING_BUNDLE_PREFIX + "/background_skybox.webp";
+    return getStagingAssetUrl("background_skybox.webp");
   }
 }
 var MOBILE_BOOT_TIMEOUT_MS = 6e3;

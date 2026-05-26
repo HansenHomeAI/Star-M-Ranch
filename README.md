@@ -11,7 +11,7 @@ npm install
 npm run dev
 ```
 
-The Vite dev server serves the repo root (default **5173**; if that port is busy, Vite uses the next free one—check the terminal for the URL). `/` redirects to `/3d/`.
+The Vite dev server serves the repo root (default **5173**; if that port is busy, Vite uses the next free one—check the terminal for the URL). `/` redirects to `/3d/`. The viewer assets are resolved relative to the deployed `/3d/` route so the repo works both at a domain root and under GitHub Pages project paths.
 
 Developer tools in the shell (splat position/rotation helpers) are hidden by default. Add `?dev=1` to the URL to show them.
 
@@ -48,7 +48,7 @@ Each dot has a world `position`, a `caption`, and a `photos` array. Photo entrie
 
 The shell defaults to this **meta.json** (same folder as the splat assets):
 
-`/3d/star-m-ranch-sogs/meta.json`
+`3d/star-m-ranch-sogs/meta.json`
 
 The iframe loads **`background_skybox.webp` in the same directory** as `meta.json` (see also `background_manifest.json` in that folder).
 
