@@ -37,7 +37,7 @@ if (
   !viewerSource.includes("target.distance = tapFocusDistance;") ||
   !viewerSource.includes("target.fov = tapFocusFov;")
 ) {
-  throw new Error("Tap focus should animate only pan/tilt while locking eye position, zoom distance, and FOV.");
+  throw new Error("Tap focus should animate only pan/tilt while locking eye position and FOV.");
 }
 
 if (pickBlock.includes("tmpCamera.look(cam.position, worldPos);")) {
@@ -57,14 +57,14 @@ if (
   !pickBlock.includes("if (pickDistance <= 1e-6)") ||
   !pickBlock.includes("vecToAngles(tmpCamera.angles, tmpv.mulScalar(1 / pickDistance));") ||
   !pickBlock.includes("tmpCamera.position.copy(cam.position);") ||
-  !pickBlock.includes("tmpCamera.distance = cam.distance;") ||
+  !pickBlock.includes("tmpCamera.distance = pickDistance;") ||
   !pickBlock.includes("tapFocusPosition.copy(cam.position);") ||
   !pickBlock.includes("tapFocusFromAngles.copy(cam.angles);") ||
   !pickBlock.includes("tapFocusToAngles.copy(tmpCamera.angles);") ||
-  !pickBlock.includes("tapFocusDistance = cam.distance;") ||
+  !pickBlock.includes("tapFocusDistance = pickDistance;") ||
   !pickBlock.includes("tapFocusTimer = 0;")
 ) {
-  throw new Error("Tap focus should keep the current eye position and zoom distance while rotating toward the picked point.");
+  throw new Error("Tap focus should keep the current eye position while rotating toward the picked point and making it the orbit pivot.");
 }
 
 if (pickBlock.includes("target.copy(tmpCamera);") || pickBlock.includes("this.camera.copy(tmpCamera);")) {

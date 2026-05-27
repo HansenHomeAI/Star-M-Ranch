@@ -101166,11 +101166,11 @@ class CameraManager {
             }
             vecToAngles(tmpCamera.angles, tmpv.mulScalar(1 / pickDistance));
             tmpCamera.position.copy(cam.position);
-            tmpCamera.distance = cam.distance;
+            tmpCamera.distance = pickDistance;
             tapFocusPosition.copy(cam.position);
             tapFocusFromAngles.copy(cam.angles);
             tapFocusToAngles.copy(tmpCamera.angles);
-            tapFocusDistance = cam.distance;
+            tapFocusDistance = pickDistance;
             tapFocusFov = cam.fov;
             tapFocusTimer = 0;
             this._pickFocusRingSeq++;
