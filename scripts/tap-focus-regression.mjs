@@ -25,8 +25,8 @@ if (
   throw new Error("Tap focus should ignore picks outside the configured fixed max-distance focus area before moving the orbit target.");
 }
 
-if (!pickBlock.includes("controllers.orbit.goto(tmpCamera);")) {
-  throw new Error("Tap focus should smoothly pan the orbit controller to the picked focus target.");
+if (!pickBlock.includes("controllers.orbit.goto(tmpCamera, false);")) {
+  throw new Error("Tap focus should retarget the orbit controller without a dolly-style smooth camera move.");
 }
 
 if (pickBlock.includes("tmpCamera.look(cam.position, worldPos);")) {
@@ -34,11 +34,21 @@ if (pickBlock.includes("tmpCamera.look(cam.position, worldPos);")) {
 }
 
 if (
-  !pickBlock.includes("tmpCamera.position.set(worldPos.x, worldPos.y, worldPos.z).sub(tmpv.mulScalar(cam.distance));") ||
-  !pickBlock.includes("tmpCamera.angles.copy(cam.angles);") ||
+  pickBlock.includes("tmpCamera.position.set(worldPos.x, worldPos.y, worldPos.z).sub(tmpv.mulScalar(cam.distance));") ||
+  pickBlock.includes("tmpCamera.angles.copy(cam.angles);")
+) {
+  throw new Error("Tap focus should not move the camera eye to preserve the previous viewing angle.");
+}
+
+if (
+  !pickBlock.includes("tmpv.set(worldPos.x - cam.position.x, worldPos.y - cam.position.y, worldPos.z - cam.position.z);") ||
+  !pickBlock.includes("const pickDistance = tmpv.length();") ||
+  !pickBlock.includes("if (pickDistance <= 1e-6)") ||
+  !pickBlock.includes("vecToAngles(tmpCamera.angles, tmpv.mulScalar(1 / pickDistance));") ||
+  !pickBlock.includes("tmpCamera.position.copy(cam.position);") ||
   !pickBlock.includes("tmpCamera.distance = cam.distance;")
 ) {
-  throw new Error("Tap focus should preserve current orbit distance and angles while moving the focus point.");
+  throw new Error("Tap focus should keep the current eye position and zoom distance while rotating toward the picked point.");
 }
 
 if (pickBlock.includes("target.copy(tmpCamera);") || pickBlock.includes("this.camera.copy(tmpCamera);")) {
