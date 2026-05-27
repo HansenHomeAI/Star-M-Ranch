@@ -5,10 +5,11 @@ const source = readFileSync(new URL("../3d/index.js", import.meta.url), "utf8");
 
 const defaultPathBlock = source.match(/var CANYON_VISTA_DEFAULT_PATH_CHECKPOINTS = \[[\s\S]*?\n\];/)?.[0] || "";
 assert.ok(defaultPathBlock, "Default animation path should be extractable.");
-assert.equal((defaultPathBlock.match(/duration: 7/g) || []).length, 9, "Default animation path should contain 9 checkpoints with 7-second durations.");
-assert.match(defaultPathBlock, /position: \{ x: 0\.43102809586419916, y: 0\.25785430620725724, z: 0\.8515784166158226 \}/, "Default animation path should start from the updated first checkpoint.");
-assert.match(defaultPathBlock, /position: \{ x: 0\.9523214311018778, y: 0\.162397901885115, z: -0\.6975256227520483 \}/, "Default animation path should end at the updated ninth checkpoint.");
-assert.match(source, /appendCheckpoint\(pathStateRef\.current,[\s\S]*?duration: 7[\s\S]*?\}\);/, "Newly captured animation path checkpoints should default to 7 seconds.");
+assert.equal((defaultPathBlock.match(/duration: 5/g) || []).length, 14, "Default animation path should contain 14 checkpoints with 5-second durations.");
+assert.doesNotMatch(defaultPathBlock, /duration: 7/, "Default animation path should not keep old 7-second durations.");
+assert.match(defaultPathBlock, /position: \{ x: -0\.6142325162058411, y: 0\.15581982934472063, z: -0\.7422609285119238 \}/, "Default animation path should start from the updated first checkpoint.");
+assert.match(defaultPathBlock, /position: \{ x: -0\.8147770591573891, y: 0\.1728903205240006, z: -0\.3878196563880584 \}/, "Default animation path should end at the updated fourteenth checkpoint.");
+assert.match(source, /appendCheckpoint\(pathStateRef\.current,[\s\S]*?duration: 5[\s\S]*?\}\);/, "Newly captured animation path checkpoints should default to 5 seconds.");
 
 const panelBlock = source.match(/function AnimationPathPanel\([\s\S]*?\n}\n\n\/\/ components\/sogs-migrated-viewer\/SogsMigratedViewer\.tsx/)?.[0] || "";
 assert.ok(panelBlock, "Animation path panel should be extractable.");
