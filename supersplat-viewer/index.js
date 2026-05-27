@@ -100984,6 +100984,7 @@ class OrbitController {
 const tmpCamera = new Camera();
 const tmpv = new Vec3();
 const scratchPickScreen = new Vec3();
+const TAP_FOCUS_ANIMATION_SECONDS = 0.45;
 const createCamera = (position, target, fov) => {
     const result = new Camera();
     result.look(position, target);
@@ -101042,6 +101043,12 @@ class CameraManager {
         this.camera.copy(resetCamera);
         const target = new Camera(this.camera); // the active controller updates this
         const from = new Camera(this.camera); // stores the previous camera state during transition
+        const tapFocusPosition = new Vec3();
+        const tapFocusFromAngles = new Vec3();
+        const tapFocusToAngles = new Vec3();
+        let tapFocusTimer = 1;
+        let tapFocusDistance = this.camera.distance;
+        let tapFocusFov = this.camera.fov;
         let fromMode = 'orbit';
         // enter the initial controller
         getController(state.cameraMode).onEnter(this.camera);
@@ -101056,6 +101063,19 @@ class CameraManager {
             transitionTimer = Math.min(1, transitionTimer + deltaTime * transitionSpeed);
             const controller = getController(state.cameraMode);
             controller.update(dt, frame, target);
+            if (tapFocusTimer < 1) {
+                tapFocusTimer = Math.min(1, tapFocusTimer + deltaTime / TAP_FOCUS_ANIMATION_SECONDS);
+                const tapFocusT = easeOut(tapFocusTimer);
+                target.position.copy(tapFocusPosition);
+                target.angles.x = math.lerpAngle(tapFocusFromAngles.x, tapFocusToAngles.x, tapFocusT) % 360;
+                target.angles.y = math.lerpAngle(tapFocusFromAngles.y, tapFocusToAngles.y, tapFocusT) % 360;
+                target.angles.z = math.lerpAngle(tapFocusFromAngles.z, tapFocusToAngles.z, tapFocusT) % 360;
+                target.distance = tapFocusDistance;
+                target.fov = tapFocusFov;
+                if (tapFocusTimer >= 1 && state.cameraMode === 'orbit') {
+                    controllers.orbit.goto(target, false);
+                }
+            }
             if (transitionTimer < 1) {
                 // lerp away from previous camera during transition
                 this.camera.lerp(from, target, easeOut(transitionTimer));
@@ -101136,6 +101156,7 @@ class CameraManager {
             if (state.cameraMode !== 'orbit') {
                 state.cameraMode = 'orbit';
             }
+            transitionTimer = 1;
             const cam = this.camera;
             tmpCamera.copy(cam);
             tmpv.set(worldPos.x - cam.position.x, worldPos.y - cam.position.y, worldPos.z - cam.position.z);
@@ -101146,6 +101167,12 @@ class CameraManager {
             vecToAngles(tmpCamera.angles, tmpv.mulScalar(1 / pickDistance));
             tmpCamera.position.copy(cam.position);
             tmpCamera.distance = cam.distance;
+            tapFocusPosition.copy(cam.position);
+            tapFocusFromAngles.copy(cam.angles);
+            tapFocusToAngles.copy(tmpCamera.angles);
+            tapFocusDistance = cam.distance;
+            tapFocusFov = cam.fov;
+            tapFocusTimer = 0;
             this._pickFocusRingSeq++;
             this._pickFocusRingT = Date.now();
             controllers.orbit.goto(tmpCamera, false);

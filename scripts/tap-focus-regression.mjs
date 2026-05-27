@@ -29,6 +29,17 @@ if (!pickBlock.includes("controllers.orbit.goto(tmpCamera, false);")) {
   throw new Error("Tap focus should retarget the orbit controller without a dolly-style smooth camera move.");
 }
 
+if (
+  !viewerSource.includes("const TAP_FOCUS_ANIMATION_SECONDS = 0.45;") ||
+  !viewerSource.includes("target.angles.x = math.lerpAngle(tapFocusFromAngles.x, tapFocusToAngles.x, tapFocusT) % 360;") ||
+  !viewerSource.includes("target.angles.y = math.lerpAngle(tapFocusFromAngles.y, tapFocusToAngles.y, tapFocusT) % 360;") ||
+  !viewerSource.includes("target.position.copy(tapFocusPosition);") ||
+  !viewerSource.includes("target.distance = tapFocusDistance;") ||
+  !viewerSource.includes("target.fov = tapFocusFov;")
+) {
+  throw new Error("Tap focus should animate only pan/tilt while locking eye position, zoom distance, and FOV.");
+}
+
 if (pickBlock.includes("tmpCamera.look(cam.position, worldPos);")) {
   throw new Error("Tap focus should not call Camera.look with the picked point because that recalculates orbit distance.");
 }
@@ -46,7 +57,12 @@ if (
   !pickBlock.includes("if (pickDistance <= 1e-6)") ||
   !pickBlock.includes("vecToAngles(tmpCamera.angles, tmpv.mulScalar(1 / pickDistance));") ||
   !pickBlock.includes("tmpCamera.position.copy(cam.position);") ||
-  !pickBlock.includes("tmpCamera.distance = cam.distance;")
+  !pickBlock.includes("tmpCamera.distance = cam.distance;") ||
+  !pickBlock.includes("tapFocusPosition.copy(cam.position);") ||
+  !pickBlock.includes("tapFocusFromAngles.copy(cam.angles);") ||
+  !pickBlock.includes("tapFocusToAngles.copy(tmpCamera.angles);") ||
+  !pickBlock.includes("tapFocusDistance = cam.distance;") ||
+  !pickBlock.includes("tapFocusTimer = 0;")
 ) {
   throw new Error("Tap focus should keep the current eye position and zoom distance while rotating toward the picked point.");
 }
